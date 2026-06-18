@@ -15,9 +15,8 @@
 - [Publico-Alvo e Perfis de Acesso](#público-alvo-e-perfis-de-acesso)
 - [Funcionalidades e Roadmap](#funcionalidades-e-roadmap)
 - [Pacotes Utilizados](#pacotes-utilizados)
-- [Documentacao da API](#documentacao-da-api)
-- [Configuracao do Ambiente](#configuracao-do-ambiente)
-- [Deploy](#deploy)
+- [Documentação da API](#documentação-da-api)
+- [Configuração do Ambiente](#configuração-do-ambiente)
 
 ## Visao Geral
 
@@ -76,7 +75,7 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 
 > **Nota:** Consulte o arquivo `requirements.txt` para a lista completa quando o ambiente do backend estiver configurado.
 
-## Documentacao da API
+## Documentação da API
 
 A documentação interativa completa (com Schemas e testes em tempo real) está disponível na rota `/api/docs/` utilizando o Swagger UI.
 
@@ -92,9 +91,9 @@ A documentação interativa completa (com Schemas e testes em tempo real) está 
 | PATCH | `/api/perfil/` | Edicao de dados do perfil | Requerida |
 | GET | `/api/status/` | Rota de teste da API | Publica |
 
-> Os vendedores serao cadastrados pelos organizadores e receberao suas credenciais de acesso por e-mail.
+> Os vendedores serao cadastrados pelos organizadores e receberão suas credenciais de acesso por e-mail.
 
-## Configuracao do Ambiente
+## Configuração do Ambiente
 
 Siga os passos abaixo para configurar o ambiente local.
 
