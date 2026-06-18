@@ -17,17 +17,18 @@
 - [Problema que Resolve](#problema-que-resolve)
 - [Objetivos Principais](#objetivos-principais)
 - [Publico-Alvo](#publico-alvo)
+- [Perfis de Acesso](#perfis-de-acesso)
 - [Funcionalidades de Alto Nivel](#funcionalidades-de-alto-nivel)
 - [Pacotes Utilizados](#pacotes-utilizados)
-- [Estrutura do Projeto](#estrutura-do-projeto)
 - [Documentacao da API](#documentacao-da-api)
 - [Configuracao do Ambiente](#configuracao-do-ambiente)
-- [Roadmap de Sprints](#roadmap-de-sprints)
 - [Deploy](#deploy)
 
 ## Visao Geral
 
 A RifaFacil API e uma solucao backend RESTful desenvolvida em Django para criacao, gestao e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem vendedores, acompanhem vendas, aprovem pagamentos, realizem sorteios e disponibilizem uma pagina publica para compradores selecionarem numeros e enviarem comprovantes.
+
+Este projeto esta sendo desenvolvido no contexto de uma residencia tecnologica vinculada ao IFB, com entregas organizadas em sprints semanais. A proposta e construir uma solucao backend funcional, documentada e evolutiva, aplicando praticas de desenvolvimento web, API REST, controle de versao e autenticacao segura.
 
 ## Problema que Resolve
 
@@ -50,6 +51,15 @@ A API resolve esse problema centralizando o fluxo da rifa: cadastro, reserva de 
 - Vendedores associados a campanhas de rifa.
 - Compradores que acessam paginas publicas de rifas.
 - Equipes academicas ou de residencia tecnologica que precisam acompanhar a evolucao do projeto por sprints.
+
+## Perfis de Acesso
+
+| Perfil | Tipo de acesso | Principais permissoes |
+|--------|----------------|-----------------------|
+| Organizador | Autenticado | Criar e gerenciar rifas, cadastrar vendedores, aprovar pagamentos, acompanhar relatorios e realizar sorteios |
+| Vendedor | Autenticado | Consultar rifas associadas, acompanhar vendas realizadas e visualizar comissoes estimadas |
+| Comprador | Publico | Acessar a pagina publica da rifa, escolher numeros, preencher dados e enviar comprovante |
+| Visitante | Publico | Visualizar rifas publicas e acompanhar informacoes da campanha |
 
 ## Funcionalidades de Alto Nivel
 
@@ -79,35 +89,6 @@ A API resolve esse problema centralizando o fluxo da rifa: cadastro, reserva de 
 
 > **Nota:** Consulte o arquivo `requirements.txt` para a lista completa quando o ambiente do backend estiver configurado.
 
-## Estrutura do Projeto
-
-```text
-Sistema de Rifa Online/
-├── docs/
-│   └── database_diagram.png
-├── manage.py
-├── requirements.txt
-├── rifafacil/
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── asgi.py
-│   └── wsgi.py
-├── accounts/
-│   ├── admin.py
-│   ├── models.py
-│   ├── serializers.py
-│   ├── urls.py
-│   └── views.py
-├── raffles/
-│   ├── admin.py
-│   ├── models.py
-│   ├── serializers.py
-│   ├── urls.py
-│   └── views.py
-└── README.md
-```
-
 ## Documentacao da API
 
 A documentacao interativa devera ficar disponivel em `/api/docs/` no ambiente de desenvolvimento.
@@ -116,13 +97,13 @@ A documentacao interativa devera ficar disponivel em `/api/docs/` no ambiente de
 
 | Metodo | Endpoint | Descricao | Autenticacao |
 |--------|----------|-----------|--------------|
-| POST | `/api/auth/register/` | Cadastro de usuario organizador ou vendedor | Publica |
-| POST | `/api/auth/login/` | Login com e-mail e senha | Publica |
-| POST | `/api/auth/refresh/` | Renovacao de token JWT | Publica |
-| POST | `/api/auth/password-reset/` | Solicitacao de recuperacao de senha | Publica |
-| GET | `/api/auth/profile/` | Consulta do perfil autenticado | Requerida |
-| PATCH | `/api/auth/profile/` | Edicao de dados do perfil | Requerida |
-| GET | `/api/health/` | Rota de teste da API | Publica |
+| POST | `/api/cadastro/` | Cadastro de usuario organizador ou vendedor | Publica |
+| POST | `/api/login/` | Login com e-mail e senha | Publica |
+| POST | `/api/renovar-token/` | Renovacao de token JWT | Publica |
+| POST | `/api/recuperar-senha/` | Solicitacao de recuperacao de senha | Publica |
+| GET | `/api/perfil/` | Consulta do perfil autenticado | Requerida |
+| PATCH | `/api/perfil/` | Edicao de dados do perfil | Requerida |
+| GET | `/api/status/` | Rota de teste da API | Publica |
 
 ## Configuracao do Ambiente
 
@@ -165,18 +146,6 @@ Siga os passos abaixo para configurar o ambiente local.
    python manage.py migrate
    python manage.py runserver
    ```
-
-## Roadmap de Sprints
-
-| Sprint | Foco Principal | Entregas |
-|--------|----------------|----------|
-| 1 | Repositorio e fundacao | README, estrutura inicial, backend rodando e rota de teste |
-| 2 | Autenticacao e papeis | Cadastro, login JWT, recuperacao simulada, perfil e rotas protegidas |
-| 3-4 | Gestao de rifas e premios | CRUD de rifas, multiplos premios, upload e editor de texto |
-| 5-6 | Gestao de vendedores | Cadastro de vendedores, associacao a rifas e dashboard do vendedor |
-| 7-8 | Pagina publica e reservas | Grade de numeros, carrinho, formulario do comprador e CPF obrigatorio |
-| 9-10 | Comprovantes e pagamentos | Upload, expiracao de reservas, aprovacao e rejeicao |
-| 11-12 | Sorteio, comentarios e finalizacao | Sorteio, comentarios moderados, relatorios e deploy |
 
 ## Deploy
 
