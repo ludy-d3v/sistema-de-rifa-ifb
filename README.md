@@ -78,7 +78,7 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 
 ## Documentacao da API
 
-A documentacao interativa devera ficar disponivel em `/api/docs/` no ambiente de desenvolvimento.
+A documentação interativa completa (com Schemas e testes em tempo real) está disponível na rota `/api/docs/` utilizando o Swagger UI.
 
 ### Endpoints Iniciais Planejados
 
