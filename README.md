@@ -1,15 +1,11 @@
-# RifaFacil API
+# RifaFácil - API
 
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
 [![Django](https://img.shields.io/badge/Django-5.0%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
 [![Django REST Framework](https://img.shields.io/badge/DRF-API-red.svg)](https://www.django-rest-framework.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-003B57.svg?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Instituicoes de Fomento e Parceria
-
-[![Website IFB](https://img.shields.io/badge/Website-IFB-%23508C3C.svg?labelColor=%23C8102E)](https://www.ifb.edu.br/)
-[![Website ihwbr](https://img.shields.io/badge/Website-ihwbr-%23DAA520.svg?labelColor=%232E2E2E)](https://hardware.org.br/)
+> O projeto esta sendo desenvolvido durante uma Residência Tecnológica vinculada ao Instituto Federal de Brasilia — IFB
 
 ## Sumario
 
@@ -26,7 +22,7 @@
 
 ## Visao Geral
 
-A RifaFacil API e uma solucao backend RESTful desenvolvida em Django para criacao, gestao e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem vendedores, acompanhem vendas, aprovem pagamentos, realizem sorteios e disponibilizem uma pagina publica para compradores selecionarem numeros e enviarem comprovantes.
+A RifaFácil API é uma solução backend RESTful desenvolvida em Django para criação, gestão e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem vendedores, acompanhem vendas, aprovem pagamentos, realizem sorteios e disponibilizem uma pagina pública para compradores selecionarem numeros e enviarem comprovantes.
 
 ## Problema que Resolve
 
@@ -48,7 +44,6 @@ A API resolve esse problema centralizando o fluxo da rifa: cadastro, reserva de 
 - Organizadores de rifas digitais.
 - Vendedores associados a campanhas de rifa.
 - Compradores que acessam paginas publicas de rifas.
-- Equipes academicas ou de residencia tecnologica que precisam acompanhar a evolucao do projeto por sprints.
 
 ## Perfis de Acesso
 
@@ -70,20 +65,20 @@ A API resolve esse problema centralizando o fluxo da rifa: cadastro, reserva de 
 - Carrinho para selecao individual de numeros.
 - Upload de comprovantes e aprovacao/rejeicao de pagamentos.
 - Sorteio manual ou automatico com multiplos premios.
-- Comentarios moderados.
-- Relatorios financeiros, de compradores e de vendedores.
+- Comentários moderados.
+- Relatórios financeiros, de compradores e de vendedores.
 
 ## Pacotes Utilizados
 
-| Pacote | Versao | Descricao |
-|--------|--------|-----------|
-| django | >=5.0 | Framework web principal |
-| djangorestframework | latest | Toolkit para construcao de APIs REST |
-| djangorestframework-simplejwt | latest | Autenticacao JWT |
-| django-filter | latest | Filtragem de consultas |
-| drf-spectacular | latest | Documentacao interativa da API |
-| django-environ | latest | Gerenciamento de variaveis de ambiente |
-| pillow | latest | Suporte a upload e processamento basico de imagens |
+| Pacote | Descricao |
+|--------|-----------|
+| django | Framework web principal |
+| djangorestframework | Toolkit para construcao de APIs REST |
+| djangorestframework-simplejwt | Autenticacao JWT |
+| django-filter | Filtragem de consultas |
+| drf-spectacular | Documentacao interativa da API |
+| django-environ | Gerenciamento de variaveis de ambiente |
+| pillow | Suporte a upload e processamento basico de imagens |
 
 > **Nota:** Consulte o arquivo `requirements.txt` para a lista completa quando o ambiente do backend estiver configurado.
 
@@ -95,13 +90,15 @@ A documentacao interativa devera ficar disponivel em `/api/docs/` no ambiente de
 
 | Metodo | Endpoint | Descricao | Autenticacao |
 |--------|----------|-----------|--------------|
-| POST | `/api/cadastro/` | Cadastro de usuario organizador ou vendedor | Publica |
+| POST | `/api/cadastro/` | Cadastro de usuario organizador | Publica |
 | POST | `/api/login/` | Login com e-mail e senha | Publica |
 | POST | `/api/renovar-token/` | Renovacao de token JWT | Publica |
 | POST | `/api/recuperar-senha/` | Solicitacao de recuperacao de senha | Publica |
 | GET | `/api/perfil/` | Consulta do perfil autenticado | Requerida |
 | PATCH | `/api/perfil/` | Edicao de dados do perfil | Requerida |
 | GET | `/api/status/` | Rota de teste da API | Publica |
+
+> Os vendedores serao cadastrados pelos organizadores e receberao suas credenciais de acesso por e-mail.
 
 ## Configuracao do Ambiente
 
