@@ -28,8 +28,6 @@
 
 A RifaFacil API e uma solucao backend RESTful desenvolvida em Django para criacao, gestao e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem vendedores, acompanhem vendas, aprovem pagamentos, realizem sorteios e disponibilizem uma pagina publica para compradores selecionarem numeros e enviarem comprovantes.
 
-Este projeto esta sendo desenvolvido no contexto de uma residencia tecnologica vinculada ao IFB, com entregas organizadas em sprints semanais. A proposta e construir uma solucao backend funcional, documentada e evolutiva, aplicando praticas de desenvolvimento web, API REST, controle de versao e autenticacao segura.
-
 ## Problema que Resolve
 
 Rifas digitais costumam ser gerenciadas de forma manual, com controle separado de numeros, pagamentos, vendedores e comprovantes. Isso aumenta o risco de duplicidade de numeros, perda de informacoes, dificuldade de auditoria e falta de transparencia para compradores e organizadores.
