@@ -12,9 +12,8 @@
 - [Visao Geral](#visao-geral)
 - [Problema que Resolve](#problema-que-resolve)
 - [Objetivos Principais](#objetivos-principais)
-- [Publico-Alvo](#publico-alvo)
-- [Perfis de Acesso](#perfis-de-acesso)
-- [Funcionalidades de Alto Nivel](#funcionalidades-de-alto-nivel)
+- [Publico-Alvo e Perfis de Acesso](#público-alvo-e-perfis-de-acesso)
+- [Funcionalidades e Roadmap](#funcionalidades-e-roadmap)
 - [Pacotes Utilizados](#pacotes-utilizados)
 - [Documentacao da API](#documentacao-da-api)
 - [Configuracao do Ambiente](#configuracao-do-ambiente)
@@ -39,13 +38,9 @@ A API resolve esse problema centralizando o fluxo da rifa: cadastro, reserva de 
 - Apoiar o acompanhamento financeiro e de desempenho por vendedor.
 - Preparar a base do sistema para expansao com pagina publica, carrinho, comprovantes, comentarios, sorteio e relatorios.
 
-## Publico-Alvo
+## Público-Alvo e Perfis de Acesso
 
-- Organizadores de rifas digitais.
-- Vendedores associados a campanhas de rifa.
-- Compradores que acessam paginas publicas de rifas.
-
-## Perfis de Acesso
+A RifaFacil atende organizadores, vendedores, compradores e visitantes, com permissoes definidas de acordo com o perfil de acesso ao sistema.
 
 | Perfil | Tipo de acesso | Principais permissoes |
 |--------|----------------|-----------------------|
@@ -54,19 +49,18 @@ A API resolve esse problema centralizando o fluxo da rifa: cadastro, reserva de 
 | Comprador | Publico | Acessar a pagina publica da rifa, escolher numeros, preencher dados e enviar comprovante |
 | Visitante | Publico | Visualizar rifas publicas e acompanhar informacoes da campanha |
 
-## Funcionalidades de Alto Nivel
+## Funcionalidades e Roadmap
 
-- Autenticacao com JWT para organizadores e vendedores.
-- Cadastro, login, recuperacao de senha e edicao de perfil.
-- Controle de acesso baseado em papeis.
-- Gestao de rifas com status, valor por numero, quantidade total e data do sorteio.
-- Cadastro de vendedores e associacao com rifas.
-- Pagina publica da rifa com grade de numeros.
-- Carrinho para selecao individual de numeros.
-- Upload de comprovantes e aprovacao/rejeicao de pagamentos.
-- Sorteio manual ou automatico com multiplos premios.
-- Comentários moderados.
-- Relatórios financeiros, de compradores e de vendedores.
+A evolução do projeto foi planejada em etapas incrementais, contemplando os principais módulos da solução:
+
+- [ ] Modelagem do banco de dados (Usuários, Rifas, Números, Prêmios, Vendedores, Transações, Pagamentos, Comentários e Resultados de Sorteio).
+- [ ] Sistema de autenticação com JWT, login por e-mail e senha, recuperação de senha e edição de perfil.
+- [ ] Autorização por níveis de acesso (Organizador, Vendedor, Comprador e Visitante), com regras de permissão por papel.
+- [ ] Desenvolvimento dos endpoints REST para CRUD de rifas, prêmios, vendedores, associações, transações, pagamentos e comentários.
+- [ ] Implementação das regras de negócio críticas: números únicos por rifa, reserva exclusiva, expiração seletiva e bloqueio de campos após primeira venda.
+- [ ] Fluxo público de compra com seleção individual de números, carrinho, CPF obrigatório, escolha de vendedor e upload de comprovante.
+- [ ] Rotinas automatizadas para expiração de reservas, sorteio na data configurada e notificações por e-mail.
+- [ ] Relatórios e exportações para acompanhamento de compradores, desempenho por vendedor, valores pendentes, arrecadação e comissões.
 
 ## Pacotes Utilizados
 
@@ -141,7 +135,3 @@ Siga os passos abaixo para configurar o ambiente local.
    python manage.py migrate
    python manage.py runserver
    ```
-
-## Deploy
-
-O deploy sera definido nas proximas sprints. A previsao inicial e publicar a API em uma plataforma como Render, Railway ou Fly.io, usando PostgreSQL em producao e variaveis de ambiente para configuracoes sensiveis.
