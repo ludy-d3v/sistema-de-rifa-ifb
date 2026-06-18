@@ -9,7 +9,7 @@
 
 ## Sumario
 
-- [Visao Geral](#visao-geral)
+- [Visão Geral](#visão-geral)
 - [Problema que Resolve](#problema-que-resolve)
 - [Objetivos Principais](#objetivos-principais)
 - [Publico-Alvo e Perfis de Acesso](#público-alvo-e-perfis-de-acesso)
@@ -18,7 +18,7 @@
 - [Documentação da API](#documentação-da-api)
 - [Configuração do Ambiente](#configuração-do-ambiente)
 
-## Visao Geral
+## Visão Geral
 
 A RifaFácil API é uma solução backend RESTful desenvolvida em Django para criação, gestão e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem vendedores, acompanhem vendas, aprovem pagamentos, realizem sorteios e disponibilizem uma pagina pública para compradores selecionarem numeros e enviarem comprovantes.
 
@@ -63,7 +63,7 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 
 ## Pacotes Utilizados
 
-| Pacote | Descricao |
+| Pacote | Descrição |
 |--------|-----------|
 | django | Framework web principal |
 | djangorestframework | Toolkit para construcao de APIs REST |
@@ -81,7 +81,7 @@ A documentação interativa completa (com Schemas e testes em tempo real) está 
 
 ### Endpoints Iniciais Planejados
 
-| Metodo | Endpoint | Descricao | Autenticacao |
+| Metodo | Endpoint | Descrição | Autenticação |
 |--------|----------|-----------|--------------|
 | POST | `/api/cadastro/` | Cadastro de usuario organizador | Publica |
 | POST | `/api/login/` | Login com e-mail e senha | Publica |
