@@ -7,7 +7,7 @@
 
 > O projeto esta sendo desenvolvido durante uma Residência Tecnológica vinculada ao Instituto Federal de Brasilia — IFB
 
-## Sumario
+## Sumário
 
 - [Visão Geral](#visão-geral)
 - [Problema que Resolve](#problema-que-resolve)
