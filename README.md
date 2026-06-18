@@ -73,7 +73,7 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 | django-environ | Gerenciamento de variaveis de ambiente |
 | pillow | Suporte a upload e processamento basico de imagens |
 
-> **Nota:** Consulte o arquivo `requirements.txt` para a lista completa quando o ambiente do backend estiver configurado.
+> **Nota:** Consulte o arquivo `requirements.txt` para a lista completa de dependências do backend.
 
 ## Documentação da API
 
@@ -83,13 +83,16 @@ A documentação interativa completa (com Schemas e testes em tempo real) está 
 
 | Metodo | Endpoint | Descrição | Autenticação |
 |--------|----------|-----------|--------------|
+| GET | `/api/` | Lista as principais rotas disponíveis da API | Publica |
+| GET | `/api/status/` | Verifica se a API está online | Publica |
+| GET | `/api/docs/` | Documentação interativa com Swagger UI | Publica |
 | POST | `/api/cadastro/` | Cadastro de usuario organizador | Publica |
 | POST | `/api/login/` | Login com e-mail e senha | Publica |
 | POST | `/api/renovar-token/` | Renovacao de token JWT | Publica |
 | POST | `/api/recuperar-senha/` | Solicitacao de recuperacao de senha | Publica |
+| POST | `/api/redefinir-senha/{uid}/{token}/` | Redefinição de senha com link simulado | Publica |
 | GET | `/api/perfil/` | Consulta do perfil autenticado | Requerida |
 | PATCH | `/api/perfil/` | Edicao de dados do perfil | Requerida |
-| GET | `/api/status/` | Rota de teste da API | Publica |
 
 > Os vendedores serao cadastrados pelos organizadores e receberão suas credenciais de acesso por e-mail.
 
