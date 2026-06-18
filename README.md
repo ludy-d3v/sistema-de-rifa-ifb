@@ -131,8 +131,8 @@ Siga os passos abaixo para configurar o ambiente local.
 1. **Clone o repositorio:**
 
    ```bash
-   git clone <url-do-repositorio>
-   cd Sistema-de-Rifa-Online
+   git clone <https://github.com/ludy-d3v/sistema-de-rifa-ifb.git>
+   cd sistema-de-rifa-online
    ```
 
 2. **Crie um ambiente virtual:**
