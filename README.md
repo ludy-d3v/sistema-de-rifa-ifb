@@ -53,7 +53,7 @@ A RifaFacil atende organizadores, vendedores, compradores e visitantes, com perm
 A evolução do projeto foi planejada em etapas incrementais, contemplando os principais módulos da solução:
 
 - [ ] Modelagem do banco de dados (Usuários, Rifas, Números, Prêmios, Vendedores, Transações, Pagamentos, Comentários e Resultados de Sorteio).
-- [ ] Sistema de autenticação com JWT, login por e-mail e senha, recuperação de senha e edição de perfil.
+- [x] Sistema de autenticação com JWT, login por e-mail e senha, recuperação de senha e edição de perfil.
 - [ ] Autorização por níveis de acesso (Organizador, Vendedor, Comprador e Visitante), com regras de permissão por papel.
 - [ ] Desenvolvimento dos endpoints REST para CRUD de rifas, prêmios, vendedores, associações, transações, pagamentos e comentários.
 - [ ] Implementação das regras de negócio críticas: números únicos por rifa, reserva exclusiva, expiração seletiva e bloqueio de campos após primeira venda.
