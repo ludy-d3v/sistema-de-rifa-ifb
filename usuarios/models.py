@@ -6,7 +6,7 @@ from django.utils import timezone
 class UsuarioManager(BaseUserManager):
     use_in_migrations = True
 
-    def _create_user(self, email, password, **extra_fields):
+    def _criar_usuario(self, email, password, **extra_fields):
         if not email:
             raise ValueError('O e-mail e obrigatorio.')
         email = self.normalize_email(email)
@@ -18,7 +18,7 @@ class UsuarioManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
-        return self._create_user(email, password, **extra_fields)
+        return self._criar_usuario(email, password, **extra_fields)
 
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
@@ -30,7 +30,7 @@ class UsuarioManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superusuario precisa ter is_superuser=True.')
 
-        return self._create_user(email, password, **extra_fields)
+        return self._criar_usuario(email, password, **extra_fields)
 
 
 class Usuario(AbstractUser):
@@ -56,6 +56,10 @@ class Usuario(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nome']
+
+    class Meta:
+        verbose_name = 'usuario'
+        verbose_name_plural = 'usuarios'
 
     def registrar_acesso(self):
         self.ultimo_acesso = timezone.now()

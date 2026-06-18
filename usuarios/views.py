@@ -25,6 +25,26 @@ class StatusAPIView(APIView):
         )
 
 
+class RootAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+    name = 'Api Root'
+
+    def get(self, request):
+        base_url = request.build_absolute_uri('/api/')
+        return Response(
+            {
+                'status': f'{base_url}status/',
+                'documentacao': f'{base_url}docs/',
+                'cadastro': f'{base_url}cadastro/',
+                'login': f'{base_url}login/',
+                'renovar_token': f'{base_url}renovar-token/',
+                'recuperar_senha': f'{base_url}recuperar-senha/',
+                'redefinir_senha': f'{base_url}redefinir-senha/<uid>/<token>/',
+                'perfil': f'{base_url}perfil/',
+            }
+        )
+
+
 class CadastroAPIView(generics.CreateAPIView):
     serializer_class = CadastroSerializer
     permission_classes = [permissions.AllowAny]
@@ -37,24 +57,30 @@ class LoginAPIView(TokenObtainPairView):
 
 class PerfilAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = UsuarioSerializer
+    http_method_names = ['get', 'patch', 'head', 'options']
 
     def get_object(self):
         return self.request.user
 
 
-class RecuperarSenhaAPIView(APIView):
+class RecuperarSenhaAPIView(generics.GenericAPIView):
+    serializer_class = RecuperarSenhaSerializer
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        serializer = RecuperarSenhaSerializer(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.save(), status=status.HTTP_200_OK)
 
 
-class RedefinirSenhaAPIView(APIView):
+class RedefinirSenhaAPIView(generics.GenericAPIView):
+    serializer_class = RedefinirSenhaSerializer
     permission_classes = [permissions.AllowAny]
 
-    def post(self, request):
-        serializer = RedefinirSenhaSerializer(data=request.data)
+    def post(self, request, uid, token):
+        serializer = self.get_serializer(
+            data=request.data,
+            context={'uid': uid, 'token': token},
+        )
         serializer.is_valid(raise_exception=True)
         return Response(serializer.save(), status=status.HTTP_200_OK)

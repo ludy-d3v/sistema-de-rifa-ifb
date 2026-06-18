@@ -15,6 +15,10 @@ urlpatterns = [
     path('login/', LoginAPIView.as_view(), name='login'),
     path('renovar-token/', TokenRefreshView.as_view(), name='renovar-token'),
     path('recuperar-senha/', RecuperarSenhaAPIView.as_view(), name='recuperar-senha'),
-    path('redefinir-senha/', RedefinirSenhaAPIView.as_view(), name='redefinir-senha'),
+    path(
+        'redefinir-senha/<str:uid>/<str:token>/',
+        RedefinirSenhaAPIView.as_view(),
+        name='redefinir-senha',
+    ),
     path('perfil/', PerfilAPIView.as_view(), name='perfil'),
 ]

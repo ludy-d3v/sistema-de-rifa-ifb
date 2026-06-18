@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.utils.crypto import get_random_string
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,13 +10,14 @@ Usuario = get_user_model()
 
 class AutenticacaoAPITestCase(APITestCase):
     def setUp(self):
+        self.senha_teste = get_random_string(24)
         self.dados_cadastro = {
             'nome': 'Ludmilla Oliveira',
             'email': 'ludy@example.com',
             'telefone': '61999999999',
             'cpf': '',
             'papel': 'organizador',
-            'senha': 'senha-forte-123',
+            'senha': self.senha_teste,
         }
 
     def test_cadastra_organizador(self):
@@ -37,14 +39,14 @@ class AutenticacaoAPITestCase(APITestCase):
     def test_login_retorna_tokens_e_usuario(self):
         Usuario.objects.create_user(
             email='ludy@example.com',
-            password='senha-forte-123',
+            password=self.senha_teste,
             nome='Ludmilla Oliveira',
             papel='organizador',
         )
 
         response = self.client.post(
             reverse('login'),
-            {'email': 'ludy@example.com', 'password': 'senha-forte-123'},
+            {'email': 'ludy@example.com', 'password': self.senha_teste},
             format='json',
         )
 
@@ -61,7 +63,7 @@ class AutenticacaoAPITestCase(APITestCase):
     def test_usuario_autenticado_visualiza_e_edita_perfil(self):
         usuario = Usuario.objects.create_user(
             email='ludy@example.com',
-            password='senha-forte-123',
+            password=self.senha_teste,
             nome='Ludmilla Oliveira',
             papel='organizador',
         )
@@ -79,12 +81,13 @@ class AutenticacaoAPITestCase(APITestCase):
         usuario.refresh_from_db()
         self.assertEqual(usuario.telefone, '61988888888')
 
-    def test_recuperacao_de_senha_simulada(self):
+    def test_recuperacao_e_redefinicao_de_senha_simulada(self):
         Usuario.objects.create_user(
             email='ludy@example.com',
-            password='senha-forte-123',
+            password=self.senha_teste,
             nome='Ludmilla Oliveira',
         )
+        nova_senha = get_random_string(24)
 
         response = self.client.post(
             reverse('recuperar-senha'),
@@ -94,5 +97,20 @@ class AutenticacaoAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('link_simulado', response.data)
+
+        redefinir_response = self.client.post(
+            response.data['link_simulado'],
+            {'nova_senha': nova_senha},
+            format='json',
+        )
+        login_response = self.client.post(
+            reverse('login'),
+            {'email': 'ludy@example.com', 'password': nova_senha},
+            format='json',
+        )
+
+        self.assertEqual(redefinir_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(login_response.status_code, status.HTTP_200_OK)
+        self.assertIn('access', login_response.data)
 
 # Create your tests here.

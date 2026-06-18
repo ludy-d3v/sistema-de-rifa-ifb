@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_str
+from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.utils.encoding import force_bytes
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -89,18 +88,19 @@ class RecuperarSenhaSerializer(serializers.Serializer):
 
 
 class RedefinirSenhaSerializer(serializers.Serializer):
-    uid = serializers.CharField(write_only=True)
-    token = serializers.CharField(write_only=True)
     nova_senha = serializers.CharField(write_only=True, min_length=8)
 
     def validate(self, attrs):
+        uid = self.context.get('uid')
+        token = self.context.get('token')
+
         try:
-            uid = force_str(urlsafe_base64_decode(attrs['uid']))
-            self.usuario = Usuario.objects.get(pk=uid, is_active=True)
+            usuario_id = force_str(urlsafe_base64_decode(uid))
+            self.usuario = Usuario.objects.get(pk=usuario_id, is_active=True)
         except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist):
             raise serializers.ValidationError({'token': 'Token invalido.'})
 
-        if not default_token_generator.check_token(self.usuario, attrs['token']):
+        if not default_token_generator.check_token(self.usuario, token):
             raise serializers.ValidationError({'token': 'Token invalido ou expirado.'})
 
         return attrs

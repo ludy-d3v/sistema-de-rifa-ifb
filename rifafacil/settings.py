@@ -150,7 +150,25 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'RifaFacil API',
-    'DESCRIPTION': 'API REST para gestao de rifas digitais.',
+    'DESCRIPTION': """
+    
+Bem-vindo(a) à documentação Swagger da RifaFacil API. 
+
+A API disponibiliza recursos para autenticação, controle de acesso e gestão das operações do sistema. 
+
+---
+
+## Autenticação 
+
+Alguns endpoints exigem autenticação JWT. Para acessar as rotas protegidas: 
+
+1. Realize o login em `POST /api/login/`.
+2. Copie o token retornado no campo `access`.
+3. Clique em **Authorize**. 
+4. Cole o token de acesso. 
+
+As permissões variam de acordo com o perfil do usuário autenticado.
+""",
     'VERSION': '0.1.0',
 }
 
