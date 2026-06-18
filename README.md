@@ -107,13 +107,13 @@ Siga os passos abaixo para configurar o ambiente local.
 2. **Crie um ambiente virtual:**
 
    ```bash
-   python -m venv .venv
+   python -m venv venv
    ```
 
 3. **Ative o ambiente virtual:**
 
    ```bash
-   .venv\Scripts\activate
+   .\venv\Scripts\activate
    ```
 
 4. **Instale as dependencias:**
