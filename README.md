@@ -63,8 +63,9 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 - [x] Bloqueio de alteração de valor e quantidade de números após primeira venda.
 - [x] Cadastro de prêmios por rifa, com limite de até 5 prêmios.
 - [x] Suporte a descrição formatada, imagem principal, galeria de imagens e link de transmissão.
-- [ ] Gestão de vendedores e associação com rifas.
-- [ ] Dashboard do vendedor.
+- [x] Gestão de vendedores, com criação de usuário, senha gerada e comissão fixa por número.
+- [x] Associação de vendedores a rifas específicas.
+- [x] Dashboard inicial do vendedor, com rifas associadas, resumo e listagem de vendas preparada para o módulo de transações.
 - [ ] Página pública da rifa com grade de números.
 - [ ] Fluxo de compra com carrinho, CPF obrigatório e escolha de vendedor.
 - [ ] Upload de comprovante e expiração automática de reservas.
@@ -111,6 +112,13 @@ http://127.0.0.1:8000/api/docs/
 | POST | `/api/rifas/{id}/galeria/` | Adiciona imagem à galeria da rifa | Requerida |
 | GET/POST | `/api/rifas/{rifa_pk}/premios/` | Lista e cria prêmios da rifa | Requerida |
 | GET/PUT/PATCH/DELETE | `/api/rifas/{rifa_pk}/premios/{id}/` | Detalha, edita e remove prêmio | Requerida |
+| GET/POST | `/api/vendedores/` | Lista e cadastra vendedores do organizador | Requerida |
+| GET/PUT/PATCH | `/api/vendedores/{id}/` | Detalha e edita dados do vendedor | Requerida |
+| POST | `/api/vendedores/{id}/associar-rifa/` | Associa vendedor a uma rifa do organizador | Requerida |
+| DELETE | `/api/vendedores/{id}/remover-rifa/` | Desativa associação entre vendedor e rifa | Requerida |
+| GET | `/api/vendedor/rifas/` | Lista rifas associadas ao vendedor autenticado | Requerida |
+| GET | `/api/vendedor/vendas/` | Lista vendas do vendedor autenticado | Requerida |
+| GET | `/api/vendedor/resumo/` | Exibe resumo de vendas e comissão do vendedor | Requerida |
 
 ## Configuração do Ambiente
 
