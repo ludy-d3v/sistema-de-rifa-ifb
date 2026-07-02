@@ -1,94 +1,123 @@
-# RifaFacil - API
+# RifaFácil - API
 
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
 [![Django](https://img.shields.io/badge/Django-5.2%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
 [![Django REST Framework](https://img.shields.io/badge/DRF-API-red.svg)](https://www.django-rest-framework.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-003B57.svg?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
-API RESTful para criacao e gestao de rifas digitais, desenvolvida em Django REST Framework durante uma Residencia Tecnologica vinculada ao Instituto Federal de Brasilia - IFB.
+> O projeto está sendo desenvolvido durante uma Residência Tecnológica vinculada ao Instituto Federal de Brasília - IFB.
 
-## Sumario
+## Sumário
 
-- [Visao Geral](#visao-geral)
-- [Funcionalidades Entregues](#funcionalidades-entregues)
-- [Perfis de Acesso](#perfis-de-acesso)
-- [Tecnologias](#tecnologias)
-- [Configuracao do Ambiente](#configuracao-do-ambiente)
-- [Documentacao Swagger](#documentacao-swagger)
-- [Endpoints Principais](#endpoints-principais)
-- [Exemplos de Teste](#exemplos-de-teste)
-- [Testes Automatizados](#testes-automatizados)
-- [Proximas Etapas](#proximas-etapas)
+- [Visão Geral](#visão-geral)
+- [Problema que Resolve](#problema-que-resolve)
+- [Objetivos Principais](#objetivos-principais)
+- [Público-Alvo e Perfis de Acesso](#público-alvo-e-perfis-de-acesso)
+- [Funcionalidades e Roadmap](#funcionalidades-e-roadmap)
+- [Pacotes Utilizados](#pacotes-utilizados)
+- [Documentação da API](#documentação-da-api)
+- [Configuração do Ambiente](#configuração-do-ambiente)
+- [Testes](#testes)
 
-## Visao Geral
+## Visão Geral
 
-O RifaFacil centraliza o fluxo de uma rifa digital: cadastro de organizador, login, protecao de rotas, perfil, recuperacao de senha, criacao de rifas, geracao automatica de numeros, cadastro de premios e suporte a imagens.
+A RifaFácil API é uma solução backend RESTful desenvolvida em Django REST Framework para criação, gestão e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem informações da campanha, criem prêmios, gerem números automaticamente e disponibilizem a base para futuras etapas de venda, pagamentos e sorteio.
 
-Nesta etapa, o foco principal esta no backend. A API ja pode ser testada pelo Swagger e esta preparada para ser consumida futuramente por um frontend em React ou outra interface.
+Nesta etapa, o foco principal está no backend. A API pode ser testada pelo Swagger e está preparada para ser consumida futuramente por uma interface frontend.
 
-## Funcionalidades Entregues
+## Problema que Resolve
 
-### Sprint 1 e 2 - Usuarios e autenticacao
+Rifas digitais costumam ser gerenciadas de forma manual, com controle separado de números, pagamentos, vendedores, prêmios e comprovantes. Isso aumenta o risco de duplicidade de números, perda de informações, dificuldade de auditoria e falta de transparência para organizadores e compradores.
 
-- Cadastro publico de organizador.
-- Bloqueio de cadastro publico para vendedor.
-- Login com e-mail e senha.
-- Geracao de token JWT.
-- Renovacao de token.
-- Consulta de perfil autenticado.
-- Edicao de perfil.
-- Recuperacao de senha simulada.
-- Redefinicao de senha por link com `uid` e `token`.
-- Permissoes iniciais por papel de usuario.
+A API resolve esse problema centralizando o fluxo principal da rifa em uma estrutura RESTful, com autenticação, controle de acesso, persistência relacional e regras de negócio aplicadas no backend.
 
-### Sprint 3 - Gestao de Rifas
+## Objetivos Principais
 
-- Model `Rifa` com dados principais da campanha.
-- CRUD de rifas para organizador autenticado.
-- Listagem de "minhas rifas".
-- Detalhe da rifa.
-- Edicao da rifa.
-- Exclusao logica usando o campo `ativo`.
-- Rifas inativas continuam aparecendo para o organizador.
-- Geracao automatica dos numeros ao criar uma rifa.
-- Model `NumeroRifa` com status inicial `disponivel`.
-- Bloqueio de alteracao de `valor_numero` e `total_numeros` apos primeira venda.
+- Centralizar a gestão de rifas digitais em uma API RESTful.
+- Permitir cadastro, login, recuperação de senha e edição de perfil.
+- Garantir controle inicial de acesso por papel de usuário.
+- Permitir criação e gerenciamento de rifas por organizadores autenticados.
+- Gerar automaticamente os números de cada rifa.
+- Permitir cadastro de prêmios, galeria de imagens e descrição formatada.
+- Preparar a base para vendedores, compras, comprovantes, sorteios e relatórios.
 
-### Sprint 4 - Premios, Descricao Formatada e Imagens
+## Público-Alvo e Perfis de Acesso
 
-- Campo `descricao_html` para descricao formatada.
-- Campo `imagem_principal`.
-- Galeria de imagens com limite de ate 5 imagens.
-- Campo `link_transmissao`.
-- Model `Premio`.
-- CRUD de premios aninhado a rifa.
-- Limite de ate 5 premios por rifa.
-- Imagem opcional por premio.
-- Validacao de posicao do premio entre 1 e 5.
+A RifaFácil atende organizadores, vendedores, compradores e visitantes, com permissões definidas de acordo com o perfil de acesso ao sistema.
 
-## Perfis de Acesso
-
-| Perfil | Tipo de acesso | Principais permissoes |
+| Perfil | Tipo de acesso | Principais permissões |
 |--------|----------------|-----------------------|
-| Organizador | Autenticado | Criar e gerenciar rifas, editar perfil, cadastrar premios e acompanhar dados da rifa |
-| Vendedor | Autenticado | Perfil previsto para proximas etapas, criado futuramente pelo organizador |
-| Comprador | Publico | Perfil previsto para fluxo publico de compra em proximas sprints |
-| Visitante | Publico | Pode acessar endpoints publicos, como status e documentacao |
+| Organizador | Autenticado | Criar e gerenciar rifas, editar perfil, cadastrar prêmios e acompanhar dados da rifa |
+| Vendedor | Autenticado | Perfil previsto para próximas etapas, criado futuramente pelo organizador |
+| Comprador | Público | Perfil previsto para fluxo público de compra em próximas sprints |
+| Visitante | Público | Pode acessar endpoints públicos, como status e documentação |
 
-## Tecnologias
+## Funcionalidades e Roadmap
 
-| Pacote | Uso |
-|--------|-----|
+A evolução do projeto foi planejada em etapas incrementais, contemplando os principais módulos da solução:
+
+- [x] Sistema de autenticação com JWT, login por e-mail e senha, recuperação de senha e edição de perfil.
+- [x] Controle inicial de acesso por papéis, com cadastro público de organizador e bloqueio de cadastro público para vendedor.
+- [x] CRUD de rifas para organizadores autenticados.
+- [x] Geração automática dos números ao criar uma rifa.
+- [x] Exclusão lógica de rifas sem vendas.
+- [x] Bloqueio de alteração de valor e quantidade de números após primeira venda.
+- [x] Cadastro de prêmios por rifa, com limite de até 5 prêmios.
+- [x] Suporte a descrição formatada, imagem principal, galeria de imagens e link de transmissão.
+- [ ] Gestão de vendedores e associação com rifas.
+- [ ] Dashboard do vendedor.
+- [ ] Página pública da rifa com grade de números.
+- [ ] Fluxo de compra com carrinho, CPF obrigatório e escolha de vendedor.
+- [ ] Upload de comprovante e expiração automática de reservas.
+- [ ] Aprovação e rejeição de pagamentos.
+- [ ] Sorteio, comentários moderados, relatórios e deploy.
+
+## Pacotes Utilizados
+
+| Pacote | Descrição |
+|--------|-----------|
 | django | Framework web principal |
-| djangorestframework | Criacao da API REST |
-| djangorestframework-simplejwt | Autenticacao JWT |
-| django-filter | Base para filtros em consultas |
-| drf-spectacular | Documentacao Swagger/OpenAPI |
-| django-environ | Variaveis de ambiente |
+| djangorestframework | Toolkit para construção de APIs REST |
+| djangorestframework-simplejwt | Autenticação JWT |
+| django-filter | Base para filtragem de consultas |
+| drf-spectacular | Documentação Swagger/OpenAPI |
+| django-environ | Gerenciamento de variáveis de ambiente |
 
-## Configuracao do Ambiente
+> Consulte o arquivo `requirements.txt` para a lista completa de dependências do backend.
 
-1. Clone o repositorio:
+## Documentação da API
+
+A documentação interativa completa está disponível na rota `/api/docs/` utilizando Swagger UI.
+
+Com o servidor rodando, acesse:
+
+```text
+http://127.0.0.1:8000/api/docs/
+```
+
+### Endpoints Principais
+
+| Método | Endpoint | Descrição | Autenticação |
+|--------|----------|-----------|--------------|
+| GET | `/api/` | Lista as principais rotas disponíveis da API | Pública |
+| GET | `/api/status/` | Verifica se a API está online | Pública |
+| POST | `/api/cadastro/` | Cadastro de usuário organizador | Pública |
+| POST | `/api/login/` | Login com e-mail e senha | Pública |
+| POST | `/api/renovar-token/` | Renovação de token JWT | Pública |
+| POST | `/api/recuperar-senha/` | Solicitação de recuperação de senha | Pública |
+| POST | `/api/redefinir-senha/{uid}/{token}/` | Redefinição de senha com link simulado | Pública |
+| GET/PATCH | `/api/perfil/` | Consulta e edição do perfil autenticado | Requerida |
+| GET/POST | `/api/rifas/` | Lista e cria rifas do organizador | Requerida |
+| GET/PUT/PATCH/DELETE | `/api/rifas/{id}/` | Detalha, edita e faz exclusão lógica da rifa | Requerida |
+| POST | `/api/rifas/{id}/galeria/` | Adiciona imagem à galeria da rifa | Requerida |
+| GET/POST | `/api/rifas/{rifa_pk}/premios/` | Lista e cria prêmios da rifa | Requerida |
+| GET/PUT/PATCH/DELETE | `/api/rifas/{rifa_pk}/premios/{id}/` | Detalha, edita e remove prêmio | Requerida |
+
+## Configuração do Ambiente
+
+Siga os passos abaixo para configurar o ambiente local.
+
+1. Clone o repositório:
 
    ```bash
    git clone https://github.com/ludy-d3v/sistema-de-rifa-ifb.git
@@ -102,249 +131,31 @@ Nesta etapa, o foco principal esta no backend. A API ja pode ser testada pelo Sw
    .\venv\Scripts\activate
    ```
 
-3. Instale as dependencias:
+3. Instale as dependências:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Configure as variaveis de ambiente:
+4. Configure as variáveis de ambiente:
 
    ```bash
    copy .env.example .env
    ```
 
-5. Aplique as migracoes:
+5. Aplique as migrações e inicie o servidor:
 
    ```bash
    python manage.py migrate
-   ```
-
-6. Inicie o servidor:
-
-   ```bash
    python manage.py runserver
    ```
 
-## Documentacao Swagger
+## Testes
 
-Com o servidor rodando, acesse:
-
-```text
-http://127.0.0.1:8000/api/docs/
-```
-
-Status da API:
-
-```text
-http://127.0.0.1:8000/api/status/
-```
-
-## Endpoints Principais
-
-| Metodo | Endpoint | Descricao | Autenticacao |
-|--------|----------|-----------|--------------|
-| GET | `/api/` | Lista rotas principais | Publica |
-| GET | `/api/status/` | Verifica se a API esta online | Publica |
-| GET | `/api/docs/` | Documentacao Swagger | Publica |
-| POST | `/api/cadastro/` | Cadastro de organizador | Publica |
-| POST | `/api/login/` | Login com e-mail e senha | Publica |
-| POST | `/api/renovar-token/` | Renovacao de token JWT | Publica |
-| GET | `/api/perfil/` | Consulta perfil autenticado | Requerida |
-| PATCH | `/api/perfil/` | Edita perfil autenticado | Requerida |
-| POST | `/api/recuperar-senha/` | Solicita recuperacao de senha simulada | Publica |
-| POST | `/api/redefinir-senha/{uid}/{token}/` | Redefine senha com link simulado | Publica |
-| GET | `/api/rifas/` | Lista rifas do organizador | Requerida |
-| POST | `/api/rifas/` | Cria rifa e gera numeros automaticamente | Requerida |
-| GET | `/api/rifas/{id}/` | Detalha uma rifa | Requerida |
-| PUT/PATCH | `/api/rifas/{id}/` | Edita uma rifa | Requerida |
-| DELETE | `/api/rifas/{id}/` | Faz exclusao logica da rifa | Requerida |
-| POST | `/api/rifas/{id}/galeria/` | Adiciona imagem na galeria | Requerida |
-| GET | `/api/rifas/{rifa_pk}/premios/` | Lista premios da rifa | Requerida |
-| POST | `/api/rifas/{rifa_pk}/premios/` | Cria premio para a rifa | Requerida |
-| GET | `/api/rifas/{rifa_pk}/premios/{id}/` | Detalha premio | Requerida |
-| PUT/PATCH | `/api/rifas/{rifa_pk}/premios/{id}/` | Edita premio | Requerida |
-| DELETE | `/api/rifas/{rifa_pk}/premios/{id}/` | Remove premio | Requerida |
-
-## Exemplos de Teste
-
-### 1. Cadastrar organizador
-
-`POST /api/cadastro/`
-
-```json
-{
-  "nome": "Cliente Teste",
-  "email": "cliente@example.com",
-  "telefone": "61999999999",
-  "cpf": "",
-  "papel": "organizador",
-  "senha": "senha-forte-123"
-}
-```
-
-### 2. Fazer login
-
-`POST /api/login/`
-
-```json
-{
-  "email": "cliente@example.com",
-  "password": "senha-forte-123"
-}
-```
-
-Copie o token `access` retornado e autorize no Swagger usando:
-
-```text
-Bearer SEU_TOKEN_ACCESS_AQUI
-```
-
-### 3. Consultar perfil
-
-`GET /api/perfil/`
-
-### 4. Editar perfil
-
-`PATCH /api/perfil/`
-
-```json
-{
-  "telefone": "61988888888",
-  "cpf": "12345678900"
-}
-```
-
-### 5. Recuperar senha
-
-`POST /api/recuperar-senha/`
-
-```json
-{
-  "email": "cliente@example.com"
-}
-```
-
-A API retorna um `link_simulado`. Use esse link para redefinir a senha.
-
-### 6. Redefinir senha
-
-`POST /api/redefinir-senha/{uid}/{token}/`
-
-```json
-{
-  "nova_senha": "nova-senha-123"
-}
-```
-
-### 7. Criar rifa
-
-`POST /api/rifas/`
-
-```json
-{
-  "titulo": "Rifa Beneficente IFB",
-  "descricao": "Rifa para arrecadacao de fundos.",
-  "descricao_html": "<p><strong>Rifa beneficente</strong> com premios especiais.</p>",
-  "valor_numero": "10.00",
-  "total_numeros": 100,
-  "data_sorteio": "2026-07-30T20:00:00-03:00",
-  "chave_pix": "organizador@teste.com",
-  "tempo_reserva": 30,
-  "status": "rascunho",
-  "link_transmissao": "https://youtube.com/live/teste"
-}
-```
-
-Ao criar a rifa, a API gera automaticamente os numeros de `1` ate `total_numeros`, todos com status `disponivel`.
-
-### 8. Listar rifas
-
-`GET /api/rifas/`
-
-### 9. Editar rifa
-
-`PATCH /api/rifas/{id}/`
-
-```json
-{
-  "titulo": "Rifa Beneficente IFB - Atualizada",
-  "status": "ativa"
-}
-```
-
-### 10. Cadastrar premios
-
-`POST /api/rifas/{rifa_pk}/premios/`
-
-```json
-{
-  "posicao": 1,
-  "descricao": "Primeiro premio: Smartphone"
-}
-```
-
-```json
-{
-  "posicao": 2,
-  "descricao": "Segundo premio: Fone Bluetooth"
-}
-```
-
-```json
-{
-  "posicao": 3,
-  "descricao": "Terceiro premio: Vale compras"
-}
-```
-
-### 11. Listar premios
-
-`GET /api/rifas/{rifa_pk}/premios/`
-
-### 12. Exclusao logica da rifa
-
-`DELETE /api/rifas/{id}/`
-
-Depois, liste novamente:
-
-`GET /api/rifas/`
-
-A rifa continua aparecendo para o organizador, mas com:
-
-```json
-{
-  "ativo": false
-}
-```
-
-## Testes Automatizados
-
-Para executar os testes:
+Para executar os testes automatizados:
 
 ```bash
 python manage.py test
 ```
 
-Os testes cobrem:
-
-- Cadastro e login.
-- Perfil autenticado.
-- Recuperacao e redefinicao de senha.
-- Criacao de rifa.
-- Geracao automatica de numeros.
-- Listagem de rifas.
-- Exclusao logica.
-- Bloqueio de campos apos venda.
-- Cadastro de premios.
-
-## Proximas Etapas
-
-- Criar fluxo publico de compra.
-- Implementar reserva de numeros por comprador.
-- Implementar expiracao automatica de reservas.
-- Criar upload de comprovante de pagamento.
-- Implementar aprovacao de pagamento.
-- Criar modulo de vendedores.
-- Criar relatorios e exportacoes.
-- Desenvolver frontend para consumo da API.
+Atualmente os testes cobrem autenticação, perfil, recuperação de senha, CRUD inicial de rifas, geração automática de números, exclusão lógica, bloqueio de campos após venda e cadastro de prêmios.
