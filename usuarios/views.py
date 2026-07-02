@@ -41,6 +41,7 @@ class RootAPIView(APIView):
                 'recuperar_senha': f'{base_url}recuperar-senha/',
                 'redefinir_senha': f'{base_url}redefinir-senha/<uid>/<token>/',
                 'perfil': f'{base_url}perfil/',
+                'rifas': f'{base_url}rifas/',
             }
         )
 

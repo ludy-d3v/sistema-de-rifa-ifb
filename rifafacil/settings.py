@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
     'usuarios',
+    'rifas',
 ]
 
 MIDDLEWARE = [
@@ -120,6 +121,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -170,6 +174,7 @@ Alguns endpoints exigem autenticação JWT. Para acessar as rotas protegidas:
 As permissões variam de acordo com o perfil do usuário autenticado.
 """,
     'VERSION': '0.1.0',
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
