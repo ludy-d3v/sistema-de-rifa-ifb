@@ -199,6 +199,9 @@ Copie o token `access` retornado e autorize no Swagger usando:
 ```text
 Bearer SEU_TOKEN_ACCESS_AQUI
 ```
+   ```bash
+   python -m venv venv
+   ```
 
 ### 3. Consultar perfil
 
