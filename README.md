@@ -1,139 +1,161 @@
 # RifaFácil - API
 
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
-[![Django](https://img.shields.io/badge/Django-5.0%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
+[![Django](https://img.shields.io/badge/Django-5.2%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
 [![Django REST Framework](https://img.shields.io/badge/DRF-API-red.svg)](https://www.django-rest-framework.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-003B57.svg?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 
-> O projeto esta sendo desenvolvido durante uma Residência Tecnológica vinculada ao Instituto Federal de Brasilia — IFB
+> O projeto está sendo desenvolvido durante uma Residência Tecnológica vinculada ao Instituto Federal de Brasília - IFB.
 
 ## Sumário
 
 - [Visão Geral](#visão-geral)
 - [Problema que Resolve](#problema-que-resolve)
 - [Objetivos Principais](#objetivos-principais)
-- [Publico-Alvo e Perfis de Acesso](#público-alvo-e-perfis-de-acesso)
+- [Público-Alvo e Perfis de Acesso](#público-alvo-e-perfis-de-acesso)
 - [Funcionalidades e Roadmap](#funcionalidades-e-roadmap)
 - [Pacotes Utilizados](#pacotes-utilizados)
 - [Documentação da API](#documentação-da-api)
 - [Configuração do Ambiente](#configuração-do-ambiente)
+- [Testes](#testes)
 
 ## Visão Geral
 
-A RifaFácil API é uma solução backend RESTful desenvolvida em Django para criação, gestão e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem vendedores, acompanhem vendas, aprovem pagamentos, realizem sorteios e disponibilizem uma pagina pública para compradores selecionarem numeros e enviarem comprovantes.
+A RifaFácil API é uma solução backend RESTful desenvolvida em Django REST Framework para criação, gestão e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem informações da campanha, criem prêmios, gerem números automaticamente e disponibilizem a base para futuras etapas de venda, pagamentos e sorteio.
+
+Nesta etapa, o foco principal está no backend. A API pode ser testada pelo Swagger e está preparada para ser consumida futuramente por uma interface frontend.
 
 ## Problema que Resolve
 
-Rifas digitais costumam ser gerenciadas de forma manual, com controle separado de numeros, pagamentos, vendedores e comprovantes. Isso aumenta o risco de duplicidade de numeros, perda de informacoes, dificuldade de auditoria e falta de transparencia para compradores e organizadores.
+Rifas digitais costumam ser gerenciadas de forma manual, com controle separado de números, pagamentos, vendedores, prêmios e comprovantes. Isso aumenta o risco de duplicidade de números, perda de informações, dificuldade de auditoria e falta de transparência para organizadores e compradores.
 
-A API resolve esse problema centralizando o fluxo da rifa: cadastro, reserva de numeros, controle de status, associacao de vendedores, aprovacao de pagamentos, sorteio e relatorios.
+A API resolve esse problema centralizando o fluxo principal da rifa em uma estrutura RESTful, com autenticação, controle de acesso, persistência relacional e regras de negócio aplicadas no backend.
 
 ## Objetivos Principais
 
-- Centralizar a gestao de rifas digitais em uma API RESTful.
-- Permitir cadastro e autenticacao de organizadores e vendedores.
-- Garantir controle de acesso por papel de usuario.
-- Registrar numeros reservados, pendentes e pagos com integridade.
-- Apoiar o acompanhamento financeiro e de desempenho por vendedor.
-- Preparar a base do sistema para expansao com pagina publica, carrinho, comprovantes, comentarios, sorteio e relatorios.
+- Centralizar a gestão de rifas digitais em uma API RESTful.
+- Permitir cadastro, login, recuperação de senha e edição de perfil.
+- Garantir controle inicial de acesso por papel de usuário.
+- Permitir criação e gerenciamento de rifas por organizadores autenticados.
+- Gerar automaticamente os números de cada rifa.
+- Permitir cadastro de prêmios, galeria de imagens e descrição formatada.
+- Preparar a base para vendedores, compras, comprovantes, sorteios e relatórios.
 
 ## Público-Alvo e Perfis de Acesso
 
-A RifaFacil atende organizadores, vendedores, compradores e visitantes, com permissoes definidas de acordo com o perfil de acesso ao sistema.
+A RifaFácil atende organizadores, vendedores, compradores e visitantes, com permissões definidas de acordo com o perfil de acesso ao sistema.
 
-| Perfil | Tipo de acesso | Principais permissoes |
+| Perfil | Tipo de acesso | Principais permissões |
 |--------|----------------|-----------------------|
-| Organizador | Autenticado | Criar e gerenciar rifas, cadastrar vendedores, aprovar pagamentos, acompanhar relatorios e realizar sorteios |
-| Vendedor | Autenticado | Consultar rifas associadas, acompanhar vendas realizadas e visualizar comissoes estimadas |
-| Comprador | Publico | Acessar a pagina publica da rifa, escolher numeros, preencher dados e enviar comprovante |
-| Visitante | Publico | Visualizar rifas publicas e acompanhar informacoes da campanha |
+| Organizador | Autenticado | Criar e gerenciar rifas, editar perfil, cadastrar prêmios e acompanhar dados da rifa |
+| Vendedor | Autenticado | Perfil previsto para próximas etapas, criado futuramente pelo organizador |
+| Comprador | Público | Perfil previsto para fluxo público de compra em próximas sprints |
+| Visitante | Público | Pode acessar endpoints públicos, como status e documentação |
 
 ## Funcionalidades e Roadmap
 
 A evolução do projeto foi planejada em etapas incrementais, contemplando os principais módulos da solução:
 
-- [ ] Modelagem do banco de dados (Usuários, Rifas, Números, Prêmios, Vendedores, Transações, Pagamentos, Comentários e Resultados de Sorteio).
 - [x] Sistema de autenticação com JWT, login por e-mail e senha, recuperação de senha e edição de perfil.
-- [ ] Autorização por níveis de acesso (Organizador, Vendedor, Comprador e Visitante), com regras de permissão por papel.
-- [ ] Desenvolvimento dos endpoints REST para CRUD de rifas, prêmios, vendedores, associações, transações, pagamentos e comentários.
-- [ ] Implementação das regras de negócio críticas: números únicos por rifa, reserva exclusiva, expiração seletiva e bloqueio de campos após primeira venda.
-- [ ] Fluxo público de compra com seleção individual de números, carrinho, CPF obrigatório, escolha de vendedor e upload de comprovante.
-- [ ] Rotinas automatizadas para expiração de reservas, sorteio na data configurada e notificações por e-mail.
-- [ ] Relatórios e exportações para acompanhamento de compradores, desempenho por vendedor, valores pendentes, arrecadação e comissões.
+- [x] Controle inicial de acesso por papéis, com cadastro público de organizador e bloqueio de cadastro público para vendedor.
+- [x] CRUD de rifas para organizadores autenticados.
+- [x] Geração automática dos números ao criar uma rifa.
+- [x] Exclusão lógica de rifas sem vendas.
+- [x] Bloqueio de alteração de valor e quantidade de números após primeira venda.
+- [x] Cadastro de prêmios por rifa, com limite de até 5 prêmios.
+- [x] Suporte a descrição formatada, imagem principal, galeria de imagens e link de transmissão.
+- [ ] Gestão de vendedores e associação com rifas.
+- [ ] Dashboard do vendedor.
+- [ ] Página pública da rifa com grade de números.
+- [ ] Fluxo de compra com carrinho, CPF obrigatório e escolha de vendedor.
+- [ ] Upload de comprovante e expiração automática de reservas.
+- [ ] Aprovação e rejeição de pagamentos.
+- [ ] Sorteio, comentários moderados, relatórios e deploy.
 
 ## Pacotes Utilizados
 
 | Pacote | Descrição |
 |--------|-----------|
 | django | Framework web principal |
-| djangorestframework | Toolkit para construcao de APIs REST |
-| djangorestframework-simplejwt | Autenticacao JWT |
-| django-filter | Filtragem de consultas |
-| drf-spectacular | Documentacao interativa da API |
-| django-environ | Gerenciamento de variaveis de ambiente |
-| pillow | Suporte a upload e processamento basico de imagens |
+| djangorestframework | Toolkit para construção de APIs REST |
+| djangorestframework-simplejwt | Autenticação JWT |
+| django-filter | Base para filtragem de consultas |
+| drf-spectacular | Documentação Swagger/OpenAPI |
+| django-environ | Gerenciamento de variáveis de ambiente |
 
-> **Nota:** Consulte o arquivo `requirements.txt` para a lista completa de dependências do backend.
+> Consulte o arquivo `requirements.txt` para a lista completa de dependências do backend.
 
 ## Documentação da API
 
-A documentação interativa completa (com Schemas e testes em tempo real) está disponível na rota `/api/docs/` utilizando o Swagger UI.
+A documentação interativa completa está disponível na rota `/api/docs/` utilizando Swagger UI.
 
-### Endpoints Iniciais Planejados
+Com o servidor rodando, acesse:
 
-| Metodo | Endpoint | Descrição | Autenticação |
+```text
+http://127.0.0.1:8000/api/docs/
+```
+
+### Endpoints Principais
+
+| Método | Endpoint | Descrição | Autenticação |
 |--------|----------|-----------|--------------|
-| GET | `/api/` | Lista as principais rotas disponíveis da API | Publica |
-| GET | `/api/status/` | Verifica se a API está online | Publica |
-| GET | `/api/docs/` | Documentação interativa com Swagger UI | Publica |
-| POST | `/api/cadastro/` | Cadastro de usuario organizador | Publica |
-| POST | `/api/login/` | Login com e-mail e senha | Publica |
-| POST | `/api/renovar-token/` | Renovacao de token JWT | Publica |
-| POST | `/api/recuperar-senha/` | Solicitacao de recuperacao de senha | Publica |
-| POST | `/api/redefinir-senha/{uid}/{token}/` | Redefinição de senha com link simulado | Publica |
-| GET | `/api/perfil/` | Consulta do perfil autenticado | Requerida |
-| PATCH | `/api/perfil/` | Edicao de dados do perfil | Requerida |
-
-> Os vendedores serao cadastrados pelos organizadores e receberão suas credenciais de acesso por e-mail.
+| GET | `/api/` | Lista as principais rotas disponíveis da API | Pública |
+| GET | `/api/status/` | Verifica se a API está online | Pública |
+| POST | `/api/cadastro/` | Cadastro de usuário organizador | Pública |
+| POST | `/api/login/` | Login com e-mail e senha | Pública |
+| POST | `/api/renovar-token/` | Renovação de token JWT | Pública |
+| POST | `/api/recuperar-senha/` | Solicitação de recuperação de senha | Pública |
+| POST | `/api/redefinir-senha/{uid}/{token}/` | Redefinição de senha com link simulado | Pública |
+| GET/PATCH | `/api/perfil/` | Consulta e edição do perfil autenticado | Requerida |
+| GET/POST | `/api/rifas/` | Lista e cria rifas do organizador | Requerida |
+| GET/PUT/PATCH/DELETE | `/api/rifas/{id}/` | Detalha, edita e faz exclusão lógica da rifa | Requerida |
+| POST | `/api/rifas/{id}/galeria/` | Adiciona imagem à galeria da rifa | Requerida |
+| GET/POST | `/api/rifas/{rifa_pk}/premios/` | Lista e cria prêmios da rifa | Requerida |
+| GET/PUT/PATCH/DELETE | `/api/rifas/{rifa_pk}/premios/{id}/` | Detalha, edita e remove prêmio | Requerida |
 
 ## Configuração do Ambiente
 
 Siga os passos abaixo para configurar o ambiente local.
 
-1. **Clone o repositorio:**
+1. Clone o repositório:
 
    ```bash
    git clone https://github.com/ludy-d3v/sistema-de-rifa-ifb.git
-   cd Sistema-de-rifa-Online
+   cd sistema-de-rifa-ifb
    ```
 
-2. **Crie um ambiente virtual:**
+2. Crie e ative o ambiente virtual:
 
    ```bash
    python -m venv venv
-   ```
-
-3. **Ative o ambiente virtual:**
-
-   ```bash
    .\venv\Scripts\activate
    ```
 
-4. **Instale as dependencias:**
+3. Instale as dependências:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-5. **Configure as variaveis de ambiente:**
+4. Configure as variáveis de ambiente:
 
    ```bash
    copy .env.example .env
    ```
 
-6. **Aplique as migracoes e inicie o servidor:**
+5. Aplique as migrações e inicie o servidor:
 
    ```bash
    python manage.py migrate
    python manage.py runserver
    ```
+
+## Testes
+
+Para executar os testes automatizados:
+
+```bash
+python manage.py test
+```
+
+Atualmente os testes cobrem autenticação, perfil, recuperação de senha, CRUD inicial de rifas, geração automática de números, exclusão lógica, bloqueio de campos após venda e cadastro de prêmios.
