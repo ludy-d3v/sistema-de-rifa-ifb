@@ -17,7 +17,6 @@
 - [Pacotes Utilizados](#pacotes-utilizados)
 - [Documentação da API](#documentação-da-api)
 - [Configuração do Ambiente](#configuração-do-ambiente)
-- [Testes](#testes)
 
 ## Visão Geral
 
@@ -149,13 +148,3 @@ Siga os passos abaixo para configurar o ambiente local.
    python manage.py migrate
    python manage.py runserver
    ```
-
-## Testes
-
-Para executar os testes automatizados:
-
-```bash
-python manage.py test
-```
-
-Atualmente os testes cobrem autenticação, perfil, recuperação de senha, CRUD inicial de rifas, geração automática de números, exclusão lógica, bloqueio de campos após venda e cadastro de prêmios.
