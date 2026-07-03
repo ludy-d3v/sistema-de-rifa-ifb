@@ -7,18 +7,20 @@ from rifas.models import Rifa
 class Vendedor(models.Model):
     usuario = models.OneToOneField(
         settings.AUTH_USER_MODEL,
+        verbose_name='usuario',
         on_delete=models.PROTECT,
         related_name='perfil_vendedor',
     )
     organizador = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        verbose_name='organizador',
         on_delete=models.PROTECT,
         related_name='vendedores',
     )
-    comissao_fixa = models.DecimalField(max_digits=10, decimal_places=2)
-    ativo = models.BooleanField(default=True)
-    criado_em = models.DateTimeField(auto_now_add=True)
-    atualizado_em = models.DateTimeField(auto_now=True)
+    comissao_fixa = models.DecimalField('comissao por numero', max_digits=10, decimal_places=2)
+    ativo = models.BooleanField('ativo', default=True)
+    criado_em = models.DateTimeField('criado em', auto_now_add=True)
+    atualizado_em = models.DateTimeField('atualizado em', auto_now=True)
 
     class Meta:
         ordering = ['usuario__nome']
@@ -38,22 +40,24 @@ class Vendedor(models.Model):
 class VendedorRifa(models.Model):
     vendedor = models.ForeignKey(
         Vendedor,
+        verbose_name='vendedor',
         on_delete=models.CASCADE,
         related_name='rifas_associadas',
     )
     rifa = models.ForeignKey(
         Rifa,
+        verbose_name='rifa',
         on_delete=models.CASCADE,
         related_name='vendedores_associados',
     )
-    ativo = models.BooleanField(default=True)
-    criado_em = models.DateTimeField(auto_now_add=True)
-    atualizado_em = models.DateTimeField(auto_now=True)
+    ativo = models.BooleanField('associacao ativa', default=True)
+    criado_em = models.DateTimeField('criado em', auto_now_add=True)
+    atualizado_em = models.DateTimeField('atualizado em', auto_now=True)
 
     class Meta:
         ordering = ['rifa__titulo']
-        verbose_name = 'associacao vendedor-rifa'
-        verbose_name_plural = 'associacoes vendedor-rifa'
+        verbose_name = 'rifa associada'
+        verbose_name_plural = 'rifas associadas'
         constraints = [
             models.UniqueConstraint(
                 fields=['vendedor', 'rifa'],
@@ -63,3 +67,10 @@ class VendedorRifa(models.Model):
 
     def __str__(self):
         return f'{self.vendedor} - {self.rifa}'
+
+
+class DashboardVendedor(Vendedor):
+    class Meta:
+        proxy = True
+        verbose_name = 'dashboard do vendedor'
+        verbose_name_plural = 'dashboard do vendedor'

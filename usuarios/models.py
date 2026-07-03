@@ -39,18 +39,19 @@ class Usuario(AbstractUser):
         VENDEDOR = 'vendedor', 'Vendedor'
 
     username = None
-    nome = models.CharField(max_length=150)
-    email = models.EmailField(unique=True)
-    telefone = models.CharField(max_length=20, blank=True)
-    cpf = models.CharField(max_length=14, blank=True)
+    nome = models.CharField('nome', max_length=150)
+    email = models.EmailField('e-mail', unique=True)
+    telefone = models.CharField('telefone', max_length=20, blank=True)
+    cpf = models.CharField('CPF', max_length=14, blank=True)
     papel = models.CharField(
+        'papel de acesso',
         max_length=20,
         choices=Papel.choices,
         default=Papel.ORGANIZADOR,
     )
-    ultimo_acesso = models.DateTimeField(null=True, blank=True)
-    criado_em = models.DateTimeField(auto_now_add=True)
-    atualizado_em = models.DateTimeField(auto_now=True)
+    ultimo_acesso = models.DateTimeField('ultimo acesso', null=True, blank=True)
+    criado_em = models.DateTimeField('criado em', auto_now_add=True)
+    atualizado_em = models.DateTimeField('atualizado em', auto_now=True)
 
     objects = UsuarioManager()
 

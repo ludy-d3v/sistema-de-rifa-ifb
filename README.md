@@ -66,8 +66,8 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 - [x] Gestão de vendedores, com criação de usuário, senha gerada e comissão fixa por número.
 - [x] Associação de vendedores a rifas específicas.
 - [x] Dashboard inicial do vendedor, com rifas associadas, resumo e listagem de vendas preparada para o módulo de transações.
-- [ ] Página pública da rifa com grade de números.
-- [ ] Fluxo de compra com carrinho, CPF obrigatório e escolha de vendedor.
+- [x] Página pública da rifa via slug, com números, prêmios, progresso e vendedores ativos.
+- [x] Reserva de números com dados do comprador, CPF obrigatório e vendedor opcional.
 - [ ] Upload de comprovante e expiração automática de reservas.
 - [ ] Aprovação e rejeição de pagamentos.
 - [ ] Sorteio, comentários moderados, relatórios e deploy.
@@ -110,6 +110,8 @@ http://127.0.0.1:8000/api/docs/
 | GET/POST | `/api/rifas/` | Lista e cria rifas do organizador | Requerida |
 | GET/PUT/PATCH/DELETE | `/api/rifas/{id}/` | Detalha, edita e faz exclusão lógica da rifa | Requerida |
 | POST | `/api/rifas/{id}/galeria/` | Adiciona imagem à galeria da rifa | Requerida |
+| GET | `/api/rifa/{slug}/public/` | Exibe dados públicos da rifa, números, prêmios, progresso e vendedores | Pública |
+| POST | `/api/rifa/{id}/reservar/` | Cria reserva de números para comprador | Pública |
 | GET/POST | `/api/rifas/{rifa_pk}/premios/` | Lista e cria prêmios da rifa | Requerida |
 | GET/PUT/PATCH/DELETE | `/api/rifas/{rifa_pk}/premios/{id}/` | Detalha, edita e remove prêmio | Requerida |
 | GET/POST | `/api/vendedores/` | Lista e cadastra vendedores do organizador | Requerida |
@@ -150,9 +152,26 @@ Siga os passos abaixo para configurar o ambiente local.
    copy .env.example .env
    ```
 
-5. Aplique as migrações e inicie o servidor:
+5. Crie o banco de dados:
 
    ```bash
    python manage.py migrate
+   ```
+
+6. Crie um superusuário para acessar o painel administrativo:
+
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+   Para carregar dados de demonstração no ambiente local, também é possível executar:
+
+   ```bash
+   python manage.py seed_demo
+   ```
+
+7. Inicie o servidor:
+
+   ```bash
    python manage.py runserver
    ```

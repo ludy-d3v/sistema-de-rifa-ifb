@@ -42,6 +42,8 @@ class RootAPIView(APIView):
                 'redefinir_senha': f'{base_url}redefinir-senha/<uid>/<token>/',
                 'perfil': f'{base_url}perfil/',
                 'rifas': f'{base_url}rifas/',
+                'rifa_publica': f'{base_url}rifa/<slug>/public/',
+                'reservar_numeros': f'{base_url}rifa/<id>/reservar/',
                 'vendedores': f'{base_url}vendedores/',
                 'vendedor_rifas': f'{base_url}vendedor/rifas/',
                 'vendedor_vendas': f'{base_url}vendedor/vendas/',

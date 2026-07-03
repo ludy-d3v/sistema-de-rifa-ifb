@@ -1,11 +1,13 @@
 from decimal import Decimal
 
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rifas.models import Transacao
 from usuarios.permissions import IsOrganizador, IsVendedor
 
 from .models import Vendedor, VendedorRifa
@@ -34,8 +36,17 @@ class VendedorViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'create':
             return CriarVendedorSerializer
+        if self.action == 'associar_rifa':
+            return AssociarRifaSerializer
+        if self.action == 'remover_rifa':
+            return RemoverRifaSerializer
         return VendedorSerializer
 
+    @extend_schema(
+        request=AssociarRifaSerializer,
+        responses=VendedorRifaSerializer,
+        description='Associa um vendedor ja cadastrado a uma rifa do organizador autenticado.',
+    )
     @action(detail=True, methods=['post'], url_path='associar-rifa')
     def associar_rifa(self, request, pk=None):
         vendedor = self.get_object()
@@ -47,6 +58,11 @@ class VendedorViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+    @extend_schema(
+        request=RemoverRifaSerializer,
+        responses=VendedorRifaSerializer,
+        description='Desativa a associacao entre vendedor e rifa.',
+    )
     @action(detail=True, methods=['delete'], url_path='remover-rifa')
     def remover_rifa(self, request, pk=None):
         vendedor = self.get_object()
@@ -94,11 +110,29 @@ class VendedorRifasAPIView(VendedorBaseAPIView):
 
 class VendedorVendasAPIView(VendedorBaseAPIView):
     def get(self, request):
-        self.get_vendedor()
+        vendedor = self.get_vendedor()
+        transacoes = (
+            Transacao.objects.filter(vendedor=vendedor)
+            .select_related('rifa')
+            .prefetch_related('itens__numero')
+            .order_by('-criado_em')
+        )
+        resultados = []
+        for transacao in transacoes:
+            resultados.append(
+                {
+                    'id': transacao.id,
+                    'data': transacao.criado_em,
+                    'rifa': transacao.rifa.titulo,
+                    'comprador': transacao.comprador_nome,
+                    'numeros': [item.numero.numero for item in transacao.itens.all()],
+                    'status': transacao.status,
+                    'valor_total': transacao.valor_total,
+                }
+            )
         return Response(
             {
-                'resultados': [],
-                'mensagem': 'As vendas serao listadas quando o modulo de transacoes for implementado.',
+                'resultados': resultados,
             }
         )
 
@@ -106,15 +140,23 @@ class VendedorVendasAPIView(VendedorBaseAPIView):
 class VendedorResumoAPIView(VendedorBaseAPIView):
     def get(self, request):
         vendedor = self.get_vendedor()
+        transacoes = Transacao.objects.filter(vendedor=vendedor)
+        aprovadas = transacoes.filter(status=Transacao.Status.PAGA)
+        pendentes = transacoes.filter(status__in=[Transacao.Status.RESERVADA, Transacao.Status.AGUARDANDO_APROVACAO])
+        rejeitadas = transacoes.filter(status__in=[Transacao.Status.REJEITADA, Transacao.Status.EXPIRADA])
+        total_numeros_vendidos = sum(transacao.itens.count() for transacao in aprovadas)
+        total_numeros_pendentes = sum(transacao.itens.count() for transacao in pendentes)
+        valor_bruto_total = sum((transacao.valor_total for transacao in transacoes), Decimal('0.00'))
+        comissao_estimada = vendedor.comissao_fixa * total_numeros_vendidos
         data = {
-            'total_numeros_vendidos': 0,
-            'total_numeros_pendentes': 0,
-            'valor_bruto_total': Decimal('0.00'),
-            'comissao_estimada': Decimal('0.00') * vendedor.comissao_fixa,
+            'total_numeros_vendidos': total_numeros_vendidos,
+            'total_numeros_pendentes': total_numeros_pendentes,
+            'valor_bruto_total': valor_bruto_total,
+            'comissao_estimada': comissao_estimada,
             'vendas': {
-                'aprovadas': 0,
-                'pendentes': 0,
-                'rejeitadas': 0,
+                'aprovadas': aprovadas.count(),
+                'pendentes': pendentes.count(),
+                'rejeitadas': rejeitadas.count(),
             },
         }
         serializer = VendedorResumoSerializer(data)
