@@ -164,12 +164,6 @@ Siga os passos abaixo para configurar o ambiente local.
    python manage.py createsuperuser
    ```
 
-   Para carregar dados de demonstração no ambiente local, também é possível executar:
-
-   ```bash
-   python manage.py seed_demo
-   ```
-
 7. Inicie o servidor:
 
    ```bash
