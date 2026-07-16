@@ -1,4 +1,4 @@
-# RifaFácil - API
+# RifaFácil - AP
 
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg?logo=python)](https://www.python.org/downloads/)
 [![Django](https://img.shields.io/badge/Django-5.2%2B-green.svg?logo=Django)](https://www.djangoproject.com/)
