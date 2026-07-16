@@ -206,6 +206,7 @@ class RifaPublicaSerializer(serializers.ModelSerializer):
             'valor_numero',
             'total_numeros',
             'data_sorteio',
+            'chave_pix',
             'status',
             'imagem_principal',
             'imagem_principal_url',
@@ -417,3 +418,42 @@ class TransacaoSerializer(serializers.ModelSerializer):
             'criado_em',
         ]
         read_only_fields = fields
+
+
+class ComprovanteTransacaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transacao
+        fields = ['id', 'comprovante']
+        read_only_fields = ['id']
+
+    def validate_comprovante(self, value):
+        limite_mb = 5
+        if value.size > limite_mb * 1024 * 1024:
+            raise serializers.ValidationError(f'O comprovante deve ter no maximo {limite_mb}MB.')
+
+        tipos_permitidos = ['image/jpeg', 'image/png', 'application/pdf']
+        content_type = getattr(value, 'content_type', '')
+        if content_type not in tipos_permitidos:
+            raise serializers.ValidationError('Envie um arquivo JPG, PNG ou PDF.')
+
+        return value
+
+    def validate(self, attrs):
+        if self.instance.status != Transacao.Status.RESERVADA:
+            raise serializers.ValidationError('Apenas transacoes reservadas podem receber comprovante.')
+        if timezone.now() > self.instance.data_expiracao:
+            raise serializers.ValidationError('Esta reserva expirou antes do envio do comprovante.')
+        return attrs
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        instance.comprovante = validated_data['comprovante']
+        instance.status = Transacao.Status.AGUARDANDO_APROVACAO
+        instance.save(update_fields=['comprovante', 'status', 'atualizado_em'])
+        NumeroRifa.objects.filter(
+            itens_transacao__transacao=instance,
+        ).update(
+            status=NumeroRifa.Status.AGUARDANDO_APROVACAO,
+            atualizado_em=timezone.now(),
+        )
+        return instance

@@ -8,8 +8,9 @@ from rest_framework.response import Response
 
 from usuarios.permissions import IsOrganizador
 
-from .models import Premio, Rifa
+from .models import Premio, Rifa, Transacao
 from .serializers import (
+    ComprovanteTransacaoSerializer,
     ImagemRifaSerializer,
     PremioSerializer,
     ReservaFormularioSerializer,
@@ -92,6 +93,17 @@ class RifaPublicaAPIView(generics.RetrieveAPIView):
         )
 
 
+class RifaPublicaListAPIView(generics.ListAPIView):
+    serializer_class = RifaPublicaSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return (
+            Rifa.objects.filter(ativo=True, status=Rifa.Status.ATIVA)
+            .prefetch_related('numeros', 'premios', 'imagens_galeria')
+        )
+
+
 class ReservarNumerosAPIView(generics.CreateAPIView):
     serializer_class = ReservaSerializer
     permission_classes = [permissions.AllowAny]
@@ -107,7 +119,8 @@ class ReservarNumerosAPIView(generics.CreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['rifa'] = self.get_rifa()
+        rifa = self.get_rifa()
+        context['rifa'] = rifa
         return context
 
     def create(self, request, *args, **kwargs):
@@ -123,3 +136,16 @@ class ReservarNumerosAPIView(generics.CreateAPIView):
 class ReservarNumerosPorSlugAPIView(ReservarNumerosAPIView):
     def get_rifa(self):
         return get_object_or_404(Rifa, slug=self.kwargs['slug'])
+
+
+class EnviarComprovanteAPIView(generics.UpdateAPIView):
+    serializer_class = ComprovanteTransacaoSerializer
+    permission_classes = [permissions.AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+    http_method_names = ['post', 'head', 'options']
+
+    def get_queryset(self):
+        return Transacao.objects.filter(status=Transacao.Status.RESERVADA)
+
+    def post(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

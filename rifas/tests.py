@@ -1,4 +1,8 @@
+from io import StringIO
+
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework import status
@@ -6,6 +10,7 @@ from rest_framework.test import APITestCase
 
 from vendedores.models import Vendedor, VendedorRifa
 
+from .admin import PremioAdminForm, atualizar_numeros_da_transacao
 from .models import NumeroRifa, Premio, Rifa, Transacao
 
 
@@ -93,6 +98,20 @@ class RifasAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(Premio.objects.filter(rifa=rifa, posicao=1).exists())
 
+    def test_admin_bloqueia_premio_com_posicao_maior_que_5(self):
+        rifa = Rifa.objects.create(organizador=self.organizador, **self.payload)
+
+        form = PremioAdminForm(
+            data={
+                'rifa': rifa.pk,
+                'posicao': 9,
+                'descricao': 'Premio fora do limite',
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('posicao', form.errors)
+
     def test_endpoint_publico_retorna_rifa_por_slug_com_progresso_e_vendedores(self):
         rifa = Rifa.objects.create(organizador=self.organizador, **{**self.payload, 'status': Rifa.Status.ATIVA})
         Premio.objects.create(rifa=rifa, posicao=1, descricao='Primeiro premio')
@@ -115,6 +134,7 @@ class RifasAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['slug'], rifa.slug)
+        self.assertEqual(response.data['chave_pix'], 'pix@example.com')
         self.assertEqual(response.data['numeros_pagos'], 1)
         self.assertEqual(len(response.data['vendedores']), 1)
         self.assertEqual(len(response.data['premios']), 1)
@@ -164,3 +184,94 @@ class RifasAPITestCase(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_envio_de_comprovante_muda_status_para_aguardando_aprovacao(self):
+        rifa = Rifa.objects.create(organizador=self.organizador, **{**self.payload, 'status': Rifa.Status.ATIVA})
+        numero = NumeroRifa.objects.create(rifa=rifa, numero=1, status=NumeroRifa.Status.RESERVADO)
+        transacao = Transacao.objects.create(
+            rifa=rifa,
+            comprador_nome='Comprador Teste',
+            comprador_email='comprador@example.com',
+            comprador_telefone='61999999999',
+            comprador_cpf='12345678900',
+            data_expiracao=timezone.now() + timezone.timedelta(minutes=15),
+            valor_total=rifa.valor_numero,
+            status=Transacao.Status.RESERVADA,
+        )
+        transacao.itens.create(numero=numero, valor_unitario=rifa.valor_numero)
+        comprovante = SimpleUploadedFile('comprovante.png', b'arquivo-teste', content_type='image/png')
+        self.client.force_authenticate(user=None)
+
+        response = self.client.post(
+            reverse('transacao-comprovante', args=[transacao.id]),
+            {'comprovante': comprovante},
+            format='multipart',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        transacao.refresh_from_db()
+        numero.refresh_from_db()
+        self.assertEqual(transacao.status, Transacao.Status.AGUARDANDO_APROVACAO)
+        self.assertEqual(numero.status, NumeroRifa.Status.AGUARDANDO_APROVACAO)
+
+    def test_comando_expira_reservas_vencidas_e_libera_numeros(self):
+        rifa = Rifa.objects.create(organizador=self.organizador, **{**self.payload, 'status': Rifa.Status.ATIVA})
+        numero = NumeroRifa.objects.create(rifa=rifa, numero=1, status=NumeroRifa.Status.RESERVADO)
+        transacao = Transacao.objects.create(
+            rifa=rifa,
+            comprador_nome='Comprador Teste',
+            comprador_email='comprador@example.com',
+            comprador_telefone='61999999999',
+            comprador_cpf='12345678900',
+            data_expiracao=timezone.now() - timezone.timedelta(minutes=1),
+            valor_total=rifa.valor_numero,
+            status=Transacao.Status.RESERVADA,
+        )
+        transacao.itens.create(numero=numero, valor_unitario=rifa.valor_numero)
+
+        call_command('expirar_reservas', stdout=StringIO())
+
+        transacao.refresh_from_db()
+        numero.refresh_from_db()
+        self.assertEqual(transacao.status, Transacao.Status.EXPIRADA)
+        self.assertEqual(numero.status, NumeroRifa.Status.DISPONIVEL)
+
+    def test_status_da_transacao_paga_sincroniza_numero_como_pago(self):
+        rifa = Rifa.objects.create(organizador=self.organizador, **{**self.payload, 'status': Rifa.Status.ATIVA})
+        numero = NumeroRifa.objects.create(rifa=rifa, numero=1, status=NumeroRifa.Status.AGUARDANDO_APROVACAO)
+        transacao = Transacao.objects.create(
+            rifa=rifa,
+            comprador_nome='Felipe',
+            comprador_email='felipe@example.com',
+            comprador_telefone='61999999999',
+            comprador_cpf='12345678900',
+            data_expiracao=timezone.now() + timezone.timedelta(minutes=15),
+            valor_total=rifa.valor_numero,
+            status=Transacao.Status.PAGA,
+        )
+        transacao.itens.create(numero=numero, valor_unitario=rifa.valor_numero)
+
+        atualizar_numeros_da_transacao(transacao)
+
+        numero.refresh_from_db()
+        self.assertEqual(numero.status, NumeroRifa.Status.PAGO)
+
+    def test_status_da_transacao_rejeitada_libera_numero(self):
+        rifa = Rifa.objects.create(organizador=self.organizador, **{**self.payload, 'status': Rifa.Status.ATIVA})
+        numero = NumeroRifa.objects.create(rifa=rifa, numero=1, status=NumeroRifa.Status.AGUARDANDO_APROVACAO)
+        transacao = Transacao.objects.create(
+            rifa=rifa,
+            comprador_nome='Felipe',
+            comprador_email='felipe@example.com',
+            comprador_telefone='61999999999',
+            comprador_cpf='12345678900',
+            data_expiracao=timezone.now() + timezone.timedelta(minutes=15),
+            valor_total=rifa.valor_numero,
+            status=Transacao.Status.REJEITADA,
+        )
+        transacao.itens.create(numero=numero, valor_unitario=rifa.valor_numero)
+
+        atualizar_numeros_da_transacao(transacao)
+
+        numero.refresh_from_db()
+        self.assertEqual(numero.status, NumeroRifa.Status.DISPONIVEL)

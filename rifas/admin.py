@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin, messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -6,6 +7,7 @@ from django.utils.html import format_html
 from urllib.parse import urlencode
 
 from .models import ImagemRifa, ItemTransacao, NumeroRifa, Premio, Rifa, Transacao
+from .services import expirar_reservas_vencidas
 
 
 Usuario = get_user_model()
@@ -39,9 +41,42 @@ class ImagemRifaInline(admin.TabularInline):
     fields = ('imagem', 'ordem')
 
 
+class PremioAdminForm(forms.ModelForm):
+    class Meta:
+        model = Premio
+        fields = '__all__'
+
+    def clean_posicao(self):
+        posicao = self.cleaned_data.get('posicao')
+        if posicao and (posicao < 1 or posicao > 5):
+            raise forms.ValidationError('A posicao do premio deve estar entre 1 e 5.')
+        return posicao
+
+    def clean(self):
+        cleaned_data = super().clean()
+        rifa = cleaned_data.get('rifa')
+        posicao = cleaned_data.get('posicao')
+        if not rifa:
+            return cleaned_data
+
+        premios = Premio.objects.filter(rifa=rifa)
+        if self.instance.pk:
+            premios = premios.exclude(pk=self.instance.pk)
+
+        if premios.count() >= 5:
+            raise forms.ValidationError('A rifa aceita no maximo 5 premios.')
+
+        if posicao and premios.filter(posicao=posicao).exists():
+            self.add_error('posicao', 'Ja existe premio nesta posicao.')
+
+        return cleaned_data
+
+
 class PremioInline(admin.TabularInline):
     model = Premio
+    form = PremioAdminForm
     extra = 0
+    max_num = 5
     fields = ('posicao', 'descricao', 'imagem')
 
 
@@ -205,8 +240,7 @@ class RifaAdmin(admin.ModelAdmin):
 @admin.register(NumeroRifa)
 class NumeroRifaAdmin(admin.ModelAdmin):
     list_display = ('rifa', 'numero_da_rifa', 'status', 'atualizado_em')
-    list_display_links = None
-    list_editable = ('status',)
+    list_display_links = ('rifa', 'numero_da_rifa')
     list_filter = ('status', 'rifa')
     search_fields = ('rifa__titulo', 'numero')
     autocomplete_fields = ('rifa',)
@@ -214,7 +248,7 @@ class NumeroRifaAdmin(admin.ModelAdmin):
     ordering = ('rifa__titulo', 'numero')
     list_per_page = 50
     fields = ('rifa', 'numero', 'status', 'criado_em', 'atualizado_em')
-    readonly_fields = ('rifa', 'numero', 'criado_em', 'atualizado_em')
+    readonly_fields = ('rifa', 'numero', 'status', 'criado_em', 'atualizado_em')
 
     @admin.display(description='Numero', ordering='numero')
     def numero_da_rifa(self, obj):
@@ -253,6 +287,7 @@ class NumeroRifaAdmin(admin.ModelAdmin):
 
 @admin.register(Premio)
 class PremioAdmin(admin.ModelAdmin):
+    form = PremioAdminForm
     list_display = ('rifa', 'posicao', 'descricao')
     list_filter = ('posicao', 'rifa')
     search_fields = ('rifa__titulo', 'descricao')
@@ -295,10 +330,31 @@ def atualizar_transacoes(queryset, status_transacao, status_numero):
         for transacao_obj in queryset.prefetch_related('itens__numero'):
             transacao_obj.status = status_transacao
             transacao_obj.save(update_fields=['status', 'atualizado_em'])
-            numeros_ids = transacao_obj.itens.values_list('numero_id', flat=True)
-            NumeroRifa.objects.filter(id__in=numeros_ids).update(status=status_numero)
+            atualizar_numeros_da_transacao(transacao_obj)
             atualizadas += 1
     return atualizadas
+
+
+def status_numero_por_status_transacao(status_transacao):
+    mapa_status = {
+        Transacao.Status.RESERVADA: NumeroRifa.Status.RESERVADO,
+        Transacao.Status.AGUARDANDO_APROVACAO: NumeroRifa.Status.AGUARDANDO_APROVACAO,
+        Transacao.Status.PAGA: NumeroRifa.Status.PAGO,
+        Transacao.Status.EXPIRADA: NumeroRifa.Status.DISPONIVEL,
+        Transacao.Status.REJEITADA: NumeroRifa.Status.DISPONIVEL,
+    }
+    return mapa_status.get(status_transacao)
+
+
+def atualizar_numeros_da_transacao(transacao_obj):
+    status_numero = status_numero_por_status_transacao(transacao_obj.status)
+    if not status_numero:
+        return 0
+    numeros_ids = transacao_obj.itens.values_list('numero_id', flat=True)
+    return NumeroRifa.objects.filter(id__in=numeros_ids).update(
+        status=status_numero,
+        atualizado_em=transacao_obj.atualizado_em,
+    )
 
 
 @admin.register(Transacao)
@@ -315,11 +371,16 @@ class TransacaoAdmin(admin.ModelAdmin):
     )
     list_filter = ('status', 'rifa', 'vendedor')
     search_fields = ('comprador_nome', 'comprador_email', 'comprador_cpf', 'rifa__titulo')
-    readonly_fields = ('criado_em', 'atualizado_em')
+    readonly_fields = ('comprovante_enviado', 'criado_em', 'atualizado_em')
     autocomplete_fields = ('rifa', 'vendedor')
     list_select_related = ('rifa', 'vendedor', 'vendedor__usuario')
     inlines = (ItemTransacaoInline,)
-    actions = ('marcar_aguardando_aprovacao', 'marcar_paga', 'marcar_rejeitada')
+    actions = (
+        'marcar_aguardando_aprovacao',
+        'marcar_paga',
+        'marcar_rejeitada',
+        'expirar_reservas_vencidas_action',
+    )
     fieldsets = (
         ('Comprador', {
             'fields': (
@@ -336,7 +397,7 @@ class TransacaoAdmin(admin.ModelAdmin):
                 'status',
                 'valor_total',
                 'data_expiracao',
-                'comprovante',
+                'comprovante_enviado',
             ),
         }),
         ('Auditoria', {
@@ -378,6 +439,17 @@ class TransacaoAdmin(admin.ModelAdmin):
             return {}
         return actions
 
+    def save_model(self, request, obj, form, change):
+        with transaction.atomic():
+            super().save_model(request, obj, form, change)
+            if change and 'status' in form.changed_data:
+                total = atualizar_numeros_da_transacao(obj)
+                self.message_user(
+                    request,
+                    f'Status da transacao atualizado. {total} numero(s) sincronizado(s).',
+                    messages.SUCCESS,
+                )
+
     @admin.display(description='Numeros')
     def quantidade_numeros(self, obj):
         return obj.itens.count()
@@ -397,6 +469,12 @@ class TransacaoAdmin(admin.ModelAdmin):
     @admin.display(description='Criada em', ordering='criado_em')
     def criada_em(self, obj):
         return obj.criado_em
+
+    @admin.display(description='Comprovante')
+    def comprovante_enviado(self, obj):
+        if not obj.comprovante:
+            return 'Nenhum comprovante enviado.'
+        return format_html('<a class="button" href="{}" target="_blank">Ver comprovante</a>', obj.comprovante.url)
 
     @admin.action(description='Marcar como aguardando aprovacao')
     def marcar_aguardando_aprovacao(self, request, queryset):
@@ -424,3 +502,12 @@ class TransacaoAdmin(admin.ModelAdmin):
             NumeroRifa.Status.DISPONIVEL,
         )
         self.message_user(request, f'{total} transacao(oes) rejeitada(s). Numeros liberados.', messages.SUCCESS)
+
+    @admin.action(description='Expirar reservas vencidas')
+    def expirar_reservas_vencidas_action(self, request, queryset):
+        reservas_expiradas, numeros_liberados = expirar_reservas_vencidas()
+        self.message_user(
+            request,
+            f'{reservas_expiradas} reserva(s) expirada(s); {numeros_liberados} numero(s) liberado(s).',
+            messages.SUCCESS,
+        )

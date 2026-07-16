@@ -20,9 +20,9 @@
 
 ## Visão Geral
 
-A RifaFácil API é uma solução backend RESTful desenvolvida em Django REST Framework para criação, gestão e acompanhamento de rifas digitais. O sistema permite que organizadores cadastrem rifas, gerenciem informações da campanha, criem prêmios, gerem números automaticamente e disponibilizem a base para futuras etapas de venda, pagamentos e sorteio.
+A RifaFácil é uma solução web para criação, gestão e acompanhamento de rifas digitais, com backend RESTful em Django REST Framework, painel administrativo interno e interface pública em React para compradores.
 
-Nesta etapa, o foco principal está no backend. A API pode ser testada pelo Swagger e está preparada para ser consumida futuramente por uma interface frontend.
+O sistema permite que organizadores cadastrem rifas, gerenciem vendedores, acompanhem transações, aprovem pagamentos e disponibilizem uma página pública para seleção de números, reserva e envio de comprovantes.
 
 ## Problema que Resolve
 
@@ -38,7 +38,8 @@ A API resolve esse problema centralizando o fluxo principal da rifa em uma estru
 - Permitir criação e gerenciamento de rifas por organizadores autenticados.
 - Gerar automaticamente os números de cada rifa.
 - Permitir cadastro de prêmios, galeria de imagens e descrição formatada.
-- Preparar a base para vendedores, compras, comprovantes, sorteios e relatórios.
+- Permitir fluxo público de compra com seleção de números, reserva e envio de comprovante.
+- Preparar a base para sorteios, comentários moderados, relatórios e deploy.
 
 ## Público-Alvo e Perfis de Acesso
 
@@ -46,9 +47,9 @@ A RifaFácil atende organizadores, vendedores, compradores e visitantes, com per
 
 | Perfil | Tipo de acesso | Principais permissões |
 |--------|----------------|-----------------------|
-| Organizador | Autenticado | Criar e gerenciar rifas, editar perfil, cadastrar prêmios e acompanhar dados da rifa |
-| Vendedor | Autenticado | Perfil previsto para próximas etapas, criado futuramente pelo organizador |
-| Comprador | Público | Perfil previsto para fluxo público de compra em próximas sprints |
+| Organizador | Autenticado | Criar e gerenciar rifas, vendedores, prêmios, associações e transações |
+| Vendedor | Autenticado | Acessar rifas associadas, resumo de vendas e comissões pelo painel administrativo |
+| Comprador | Público | Acessar rifas públicas, selecionar números, reservar e enviar comprovante |
 | Visitante | Público | Pode acessar endpoints públicos, como status e documentação |
 
 ## Funcionalidades e Roadmap
@@ -68,8 +69,8 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 - [x] Dashboard inicial do vendedor, com rifas associadas, resumo e listagem de vendas preparada para o módulo de transações.
 - [x] Página pública da rifa via slug, com números, prêmios, progresso e vendedores ativos.
 - [x] Reserva de números com dados do comprador, CPF obrigatório e vendedor opcional.
-- [ ] Upload de comprovante e expiração automática de reservas.
-- [ ] Aprovação e rejeição de pagamentos.
+- [x] Upload de comprovante e expiração de reservas vencidas por comando de manutenção.
+- [x] Aprovação e rejeição de pagamentos pelo painel administrativo, com sincronização dos números no frontend.
 - [ ] Sorteio, comentários moderados, relatórios e deploy.
 
 ## Pacotes Utilizados
@@ -82,6 +83,9 @@ A evolução do projeto foi planejada em etapas incrementais, contemplando os pr
 | django-filter | Base para filtragem de consultas |
 | drf-spectacular | Documentação Swagger/OpenAPI |
 | django-environ | Gerenciamento de variáveis de ambiente |
+| React | Interface pública do comprador |
+| Vite | Ambiente de desenvolvimento e build do frontend |
+| lucide-react | Ícones da interface |
 
 > Consulte o arquivo `requirements.txt` para a lista completa de dependências do backend.
 
@@ -109,9 +113,9 @@ http://127.0.0.1:8000/api/docs/
 | GET/PATCH | `/api/perfil/` | Consulta e edição do perfil autenticado | Requerida |
 | GET/POST | `/api/rifas/` | Lista e cria rifas do organizador | Requerida |
 | GET/PUT/PATCH/DELETE | `/api/rifas/{id}/` | Detalha, edita e faz exclusão lógica da rifa | Requerida |
-| POST | `/api/rifas/{id}/galeria/` | Adiciona imagem à galeria da rifa | Requerida |
 | GET | `/api/rifa/{slug}/public/` | Exibe dados públicos da rifa, números, prêmios, progresso e vendedores | Pública |
-| POST | `/api/rifa/{id}/reservar/` | Cria reserva de números para comprador | Pública |
+| POST | `/api/rifa/{slug}/reservar/` | Cria reserva de números para comprador | Pública |
+| POST | `/api/transacoes/{id}/comprovante/` | Envia comprovante da reserva e muda status para aguardando aprovação | Pública |
 | GET/POST | `/api/rifas/{rifa_pk}/premios/` | Lista e cria prêmios da rifa | Requerida |
 | GET/PUT/PATCH/DELETE | `/api/rifas/{rifa_pk}/premios/{id}/` | Detalha, edita e remove prêmio | Requerida |
 | GET/POST | `/api/vendedores/` | Lista e cadastra vendedores do organizador | Requerida |
@@ -168,4 +172,18 @@ Siga os passos abaixo para configurar o ambiente local.
 
    ```bash
    python manage.py runserver
+   ```
+
+8. Para rodar a interface pública do comprador, abra outro terminal:
+
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+   Acesse:
+
+   ```text
+   http://127.0.0.1:5173/
    ```

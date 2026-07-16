@@ -1,6 +1,9 @@
 from decimal import Decimal
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -13,6 +16,7 @@ class Command(BaseCommand):
     help = 'Limpa dados de teste e cria um cenário de demonstração para o admin.'
 
     senha_padrao = '12345678'
+    assets_dir = Path(__file__).resolve().parents[2] / 'demo_assets'
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -122,6 +126,9 @@ class Command(BaseCommand):
             organizador=organizador,
         )
 
+        self.aplicar_imagem(notebook, 'rifa-notebook.jpg')
+        self.aplicar_imagem(smartphone, 'rifa-smartphone.jpg')
+
         for rifa in [notebook, smartphone]:
             NumeroRifa.objects.bulk_create(
                 NumeroRifa(rifa=rifa, numero=numero)
@@ -134,8 +141,35 @@ class Command(BaseCommand):
             Premio(rifa=smartphone, posicao=1, descricao='Smartphone Samsung Galaxy'),
             Premio(rifa=smartphone, posicao=2, descricao='Caixa de som Bluetooth'),
         ])
+        self.aplicar_imagem_premio(notebook, 'rifa-notebook.jpg')
+        self.aplicar_imagem_premio(smartphone, 'rifa-smartphone.jpg')
 
         return {'notebook': notebook, 'smartphone': smartphone}
+
+    def aplicar_imagem(self, rifa, nome_arquivo):
+        caminho = self.assets_dir / nome_arquivo
+        if not caminho.exists():
+            return
+
+        destino = settings.MEDIA_ROOT / 'rifas' / 'principais' / nome_arquivo
+        if destino.exists():
+            destino.unlink()
+
+        with caminho.open('rb') as arquivo:
+            rifa.imagem_principal.save(nome_arquivo, File(arquivo), save=True)
+
+    def aplicar_imagem_premio(self, rifa, nome_arquivo):
+        caminho = self.assets_dir / nome_arquivo
+        premio = Premio.objects.filter(rifa=rifa, posicao=1).first()
+        if not caminho.exists() or not premio:
+            return
+
+        destino = settings.MEDIA_ROOT / 'rifas' / 'premios' / nome_arquivo
+        if destino.exists():
+            destino.unlink()
+
+        with caminho.open('rb') as arquivo:
+            premio.imagem.save(nome_arquivo, File(arquivo), save=True)
 
     def criar_vendedores(self, usuarios, rifas):
         organizador = usuarios['organizador']
